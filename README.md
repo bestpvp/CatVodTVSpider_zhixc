@@ -24,7 +24,9 @@
 
 
 ### 5.推荐的软件
-> 强烈推荐使用 FongMi 的影视，支持自动换源，非常强大，作者持续更新维护。其仓库地址：https://github.com/FongMi/TV
+> FongMi 的影视，支持自动换源，建议使用的版本：2.0.3、2.1.2，后续的版本不建议使用，闪退问题比较多，其仓库地址：https://github.com/FongMi/TV
+> 
+> 可自行根据仓库代码进行编译打包，如果搞不来，还是建议使用 TVBox
 > 
 > 俊版TVBox、takagen99版TVBox，安装包发布仓库：https://github.com/o0HalfLife0o/TVBoxOSC
 > 
