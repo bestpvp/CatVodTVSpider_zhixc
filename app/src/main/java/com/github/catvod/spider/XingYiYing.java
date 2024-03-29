@@ -13,7 +13,6 @@ import org.jsoup.select.Elements;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -71,11 +70,9 @@ public class XingYiYing extends Spider {
         return videos;
     }
 
-    private String getStrByRegex(String regexStr, String htmlStr) {
-        Pattern pattern = Pattern.compile(regexStr, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(htmlStr);
-        if (matcher.find()) return matcher.group(1).trim();
-        return "";
+    private String find(Pattern pattern, String html) {
+        Matcher m = pattern.matcher(html);
+        return m.find() ? m.group(1).trim() : "";
     }
 
     private String parseVodInfo(Element element) {
@@ -237,7 +234,7 @@ public class XingYiYing extends Spider {
         int parse = 1;
         String headerStr = getHeader().toString();
         String html = req(lastUrl);
-        String player_aaaa = getStrByRegex("player_aaaa=(.*?)</script>", html);
+        String player_aaaa = find(Pattern.compile("player_aaaa=(.*?)</script>"), html);
         JSONObject jsonObject = new JSONObject(player_aaaa);
         String url = jsonObject.optString("url");
         if (url.contains(".m3u8") || url.contains(".mp4")) {

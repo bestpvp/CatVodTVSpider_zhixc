@@ -62,6 +62,32 @@ public class SixV extends Spider {
         return header;
     }
 
+    private String find(Pattern pattern, String html) {
+        Matcher matcher = pattern.matcher(html);
+        return matcher.find() ? matcher.group(1).trim() : "";
+    }
+
+    private String getActorOrDirector(Pattern pattern, String str) {
+        return find(pattern, str)
+                .replaceAll("<br>", "")
+                .replaceAll("&nbsp;", "")
+                .replaceAll("&amp;", "")
+                .replaceAll("middot;", "・")
+                .replaceAll("　　　　　", ",")
+                .replaceAll("　　　　 　", ",");
+    }
+
+    private String getDescription(Pattern pattern, String str) {
+        return find(pattern, str)
+                .replaceAll("</?[^>]+>", "")  // 去掉 html 标签
+                .replaceAll("\n", "") // 去掉换行符
+                .replaceAll("　　　　", "")
+                .replaceAll("&amp;", "")
+                .replaceAll("middot;", "・")
+                .replaceAll("ldquo;", "【")
+                .replaceAll("rdquo;", "】");
+    }
+
     @Override
     public void init(Context context, String extend) throws Exception {
         super.init(context, extend);
@@ -141,10 +167,10 @@ public class SixV extends Spider {
         String partHTML = doc.select(".context").html();
         String name = doc.select(".article_container > h1").text();
         String pic = doc.select("#post_content img").attr("src");
-        String typeName = getStrByRegex(Pattern.compile("◎类　　别　(.*?)<br>"), partHTML);
-        String year = getStrByRegex(Pattern.compile("◎年　　代　(.*?)<br>"), partHTML);
-        String area = getStrByRegex(Pattern.compile("◎产　　地　(.*?)<br>"), partHTML);
-        String remark = getStrByRegex(Pattern.compile("◎上映日期　(.*?)<br>"), partHTML);
+        String typeName = find(Pattern.compile("◎类　　别　(.*?)<br>"), partHTML);
+        String year = find(Pattern.compile("◎年　　代　(.*?)<br>"), partHTML);
+        String area = find(Pattern.compile("◎产　　地　(.*?)<br>"), partHTML);
+        String remark = find(Pattern.compile("◎上映日期　(.*?)<br>"), partHTML);
         String actor = getActorOrDirector(Pattern.compile("◎演　　员　(.*?)</p>"), partHTML);
         if (actor.equals("")) {
             actor = getActorOrDirector(Pattern.compile("◎主　　演　(.*?)</p>"), partHTML);
@@ -171,33 +197,6 @@ public class SixV extends Spider {
         JSONArray jsonArray = new JSONArray().put(vod);
         JSONObject result = new JSONObject().put("list", jsonArray);
         return result.toString();
-    }
-
-    private String getStrByRegex(Pattern pattern, String str) {
-        Matcher matcher = pattern.matcher(str);
-        if (matcher.find()) return matcher.group(1).trim();
-        return "";
-    }
-
-    private String getActorOrDirector(Pattern pattern, String str) {
-        return getStrByRegex(pattern, str)
-                .replaceAll("<br>", "")
-                .replaceAll("&nbsp;", "")
-                .replaceAll("&amp;", "")
-                .replaceAll("middot;", "・")
-                .replaceAll("　　　　　", ",")
-                .replaceAll("　　　　 　", ",");
-    }
-
-    private String getDescription(Pattern pattern, String str) {
-        return getStrByRegex(pattern, str)
-                .replaceAll("</?[^>]+>", "")  // 去掉 html 标签
-                .replaceAll("\n", "") // 去掉换行符
-                .replaceAll("　　　　", "")
-                .replaceAll("&amp;", "")
-                .replaceAll("middot;", "・")
-                .replaceAll("ldquo;", "【")
-                .replaceAll("rdquo;", "】");
     }
 
     @Override

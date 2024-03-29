@@ -36,6 +36,62 @@ public class Douban extends Spider {
         return header;
     }
 
+    private JSONArray parseVodListFromJSONArray(JSONArray items) throws Exception {
+        JSONArray videos = new JSONArray();
+        for (int i = 0; i < items.length(); i++) {
+            JSONObject item = items.getJSONObject(i);
+            String vodId = "msearch:" + item.optString("id");
+            String name = item.optString("title");
+            String pic = getPic(item);
+            String remark = getRating(item);
+            JSONObject vod = new JSONObject();
+            vod.put("vod_id", vodId);
+            vod.put("vod_name", name);
+            vod.put("vod_pic", pic);
+            vod.put("vod_remarks", remark);
+            videos.put(vod);
+        }
+        return videos;
+    }
+
+    private String getRating(JSONObject item) {
+        try {
+            return "评分：" + item.getJSONObject("rating").optString("value");
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    private String getPic(JSONObject item) {
+        try {
+            return item.getJSONObject("pic").optString("normal") + "@Referer=https://api.douban.com/@User-Agent=" + userAgent;
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    private String getTags(HashMap<String, String> extend) {
+        try {
+            StringBuilder tags = new StringBuilder();
+            for (String key : extend.keySet()) if (!key.equals("sort")) tags.append(extend.get(key)).append(",");
+            return substring(tags.toString());
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    public static String substring(String text) {
+        return substring(text, 1);
+    }
+
+    public static String substring(String text, int num) {
+        if (text != null && text.length() > num) {
+            return text.substring(0, text.length() - num);
+        } else {
+            return text;
+        }
+    }
+
     @Override
     public void init(Context context, String extend) throws Exception {
         this.extend = extend;
@@ -117,61 +173,5 @@ public class Douban extends Spider {
         result.put("total", total);
         result.put("list", videos);
         return result.toString();
-    }
-
-    private JSONArray parseVodListFromJSONArray(JSONArray items) throws Exception {
-        JSONArray videos = new JSONArray();
-        for (int i = 0; i < items.length(); i++) {
-            JSONObject item = items.getJSONObject(i);
-            String vodId = "msearch:" + item.optString("id");
-            String name = item.optString("title");
-            String pic = getPic(item);
-            String remark = getRating(item);
-            JSONObject vod = new JSONObject();
-            vod.put("vod_id", vodId);
-            vod.put("vod_name", name);
-            vod.put("vod_pic", pic);
-            vod.put("vod_remarks", remark);
-            videos.put(vod);
-        }
-        return videos;
-    }
-
-    private String getRating(JSONObject item) {
-        try {
-            return "评分：" + item.getJSONObject("rating").optString("value");
-        } catch (Exception e) {
-            return "";
-        }
-    }
-
-    private String getPic(JSONObject item) {
-        try {
-            return item.getJSONObject("pic").optString("normal") + "@Referer=https://api.douban.com/@User-Agent=" + userAgent;
-        } catch (Exception e) {
-            return "";
-        }
-    }
-
-    private String getTags(HashMap<String, String> extend) {
-        try {
-            StringBuilder tags = new StringBuilder();
-            for (String key : extend.keySet()) if (!key.equals("sort")) tags.append(extend.get(key)).append(",");
-            return substring(tags.toString());
-        } catch (Exception e) {
-            return "";
-        }
-    }
-
-    public static String substring(String text) {
-        return substring(text, 1);
-    }
-
-    public static String substring(String text, int num) {
-        if (text != null && text.length() > num) {
-            return text.substring(0, text.length() - num);
-        } else {
-            return text;
-        }
     }
 }

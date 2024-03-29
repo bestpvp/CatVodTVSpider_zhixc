@@ -47,6 +47,57 @@ public class Voflix extends Spider {
     }
 
     /**
+     * 正则获取字符串
+     *
+     * @param regex 正则表达式字符串
+     * @param html  网页源码
+     * @return 返回正则获取的字符串结果
+     */
+    private String find(String regex, String html) {
+        Pattern p = Pattern.compile(regex, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(html);
+        return m.find() ? m.group(1) : "";
+    }
+
+    /**
+     * 正则获取字符串
+     *
+     * @param pattern 正则表达式 pattern 对象
+     * @param html    网页源码
+     * @return 返回正则获取的字符串结果
+     */
+    private String find(Pattern pattern, String html) {
+        Matcher m = pattern.matcher(html);
+        return m.find() ? m.group(1) : "";
+    }
+
+    private String clean(String str) {
+        return removeHtmlTag(str).replace("\n", "").replace("\t", "").trim();
+    }
+
+    private String removeHtmlTag(String str) {
+        return str.replaceAll("</?[^>]+>", "");
+    }
+
+    private JSONArray parseVodList(Elements items) throws Exception {
+        JSONArray videos = new JSONArray();
+        for (Element item : items) {
+            String vodId = item.attr("href");
+            String name = item.attr("title");
+            String pic = item.select("img").attr("data-original");
+            String remark = item.select("[class=module-item-note]").text();
+
+            JSONObject vod = new JSONObject();
+            vod.put("vod_id", vodId);
+            vod.put("vod_name", name);
+            vod.put("vod_pic", pic);
+            vod.put("vod_remarks", remark);
+            videos.put(vod);
+        }
+        return videos;
+    }
+
+    /**
      * 爬虫代码初始化
      *
      * @param context 上下文对象
@@ -102,24 +153,6 @@ public class Voflix extends Spider {
         return result.toString();
     }
 
-    private JSONArray parseVodList(Elements items) throws Exception {
-        JSONArray videos = new JSONArray();
-        for (Element item : items) {
-            String vodId = item.attr("href");
-            String name = item.attr("title");
-            String pic = item.select("img").attr("data-original");
-            String remark = item.select("[class=module-item-note]").text();
-
-            JSONObject vod = new JSONObject();
-            vod.put("vod_id", vodId);
-            vod.put("vod_name", name);
-            vod.put("vod_pic", pic);
-            vod.put("vod_remarks", remark);
-            videos.put(vod);
-        }
-        return videos;
-    }
-
     /**
      * 分类内容方法
      *
@@ -173,9 +206,9 @@ public class Voflix extends Spider {
             year = elements.get(0).select("a").text();
             area = elements.get(1).select("a").text();
         }
-        String remark = getStrByRegex("备注：(.*?)</div>", html);
-        String actor = getStrByRegex("主演：(.*?)</div>", html);
-        String director = getStrByRegex("导演：(.*?)</div>", html);
+        String remark = clean(find("备注：(.*?)</div>", html));
+        String actor = clean(find("主演：(.*?)</div>", html));
+        String director = clean(find("导演：(.*?)</div>", html));
         String description = doc.select(".module-info-introduction-content").text();
 
         Elements sourceList = doc.select(".module-play-list");
@@ -215,27 +248,6 @@ public class Voflix extends Spider {
         return result.toString();
     }
 
-
-    /**
-     * 正则获取字符串
-     *
-     * @param regexStr 正则表达式字符串
-     * @param htmlStr  网页源码
-     * @return 返回正则获取的字符串结果
-     */
-    private String getStrByRegex(String regexStr, String htmlStr) {
-        Pattern pattern = Pattern.compile(regexStr, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(htmlStr);
-        if (matcher.find()) {
-            return matcher.group(1)
-                    .replaceAll("</?[^>]+>", "")
-                    .replace("\n", "")
-                    .replace("\t", "")
-                    .trim();
-        }
-        return "";
-    }
-
     /**
      * 搜索
      *
@@ -270,7 +282,8 @@ public class Voflix extends Spider {
     public String playerContent(String flag, String id, List<String> vipFlags) throws Exception {
         String playPageUrl = siteUrl + id;
         String html = req(playPageUrl, getHeader());
-        String realPlayUrl = new JSONObject(getStrByRegex("player_aaaa=(.*?)</script>", html)).optString("url");
+        String playerConfigStr = find(Pattern.compile("player_aaaa=(.*?)</script>"), html);
+        String realPlayUrl = new JSONObject(playerConfigStr).optString("url");
         if (realPlayUrl.contains(".m3u8") || realPlayUrl.contains(".mp4")) {
             JSONObject result = new JSONObject();
             result.put("parse", 0);

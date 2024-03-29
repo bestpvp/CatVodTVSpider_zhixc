@@ -44,6 +44,34 @@ public class NongMing extends Spider {
         return header;
     }
 
+    private String getRemark(String html) {
+        return find(Pattern.compile("状态:&nbsp;(.*?)</div"), html)
+                .replaceAll("</?[^>]+>", "");
+    }
+
+    private String getDirector(String html) {
+        return find(Pattern.compile("导演:&nbsp;(.*?)</div"), html)
+                .replaceAll("</?[^>]+>", "")
+                .replaceAll("&nbsp;&nbsp;", "")
+                .replaceAll("&nbsp;", ",");
+    }
+
+    private String getActor(String html) {
+        return find(Pattern.compile("主演:&nbsp;(.*?)</div"), html)
+                .replaceAll("</?[^>]+>", "")
+                .replaceAll("&nbsp;&nbsp;", "")
+                .replaceAll("&nbsp;", ",");
+    }
+
+    private String find(Pattern pattern, String html) {
+        Matcher matcher = pattern.matcher(html);
+        return matcher.find() ? matcher.group(1) : "";
+    }
+
+    private String getYear(String html) {
+        return find(Pattern.compile("年代:.*?<a.*?>(.*?)</a>"), html);
+    }
+
     @Override
     public String homeContent(boolean filter) throws Exception {
         JSONArray classes = new JSONArray();
@@ -145,35 +173,6 @@ public class NongMing extends Spider {
         JSONArray jsonArray = new JSONArray().put(vod);
         JSONObject result = new JSONObject().put("list", jsonArray);
         return result.toString();
-    }
-
-    private String getRemark(String html) {
-        return getStrByRegex(Pattern.compile("状态:&nbsp;(.*?)</div"), html)
-                .replaceAll("</?[^>]+>", "");
-    }
-
-    private String getDirector(String html) {
-        return getStrByRegex(Pattern.compile("导演:&nbsp;(.*?)</div"), html)
-                .replaceAll("</?[^>]+>", "")
-                .replaceAll("&nbsp;&nbsp;", "")
-                .replaceAll("&nbsp;", ",");
-    }
-
-    private String getActor(String html) {
-        return getStrByRegex(Pattern.compile("主演:&nbsp;(.*?)</div"), html)
-                .replaceAll("</?[^>]+>", "")
-                .replaceAll("&nbsp;&nbsp;", "")
-                .replaceAll("&nbsp;", ",");
-    }
-
-    private String getStrByRegex(Pattern pattern, String html) {
-        Matcher matcher = pattern.matcher(html);
-        if (matcher.find()) return matcher.group(1);
-        return "";
-    }
-
-    private String getYear(String html) {
-        return getStrByRegex(Pattern.compile("年代:.*?<a.*?>(.*?)</a>"), html);
     }
 
     @Override

@@ -1,7 +1,5 @@
 package com.github.catvod.spider;
 
-import android.util.Base64;
-
 import com.github.catvod.crawler.Spider;
 //import com.github.catvod.net.OkHttp;
 import com.github.catvod.utils.okhttp.OkHttpUtil;
@@ -13,7 +11,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,7 +41,7 @@ public class Cs1369 extends Spider {
         return OkHttpUtil.string(url, header);
     }
 
-    private String getStrByRegex(Pattern pattern, String html) {
+    private String find(Pattern pattern, String html) {
         Matcher m = pattern.matcher(html);
         return m.find() ? m.group(1).trim() : "";
     }
@@ -198,7 +195,7 @@ public class Cs1369 extends Spider {
     @Override
     public String playerContent(String flag, String id, List<String> vipFlags) throws Exception {
         String content = req(id, getHeader());
-        String json = getStrByRegex(Pattern.compile("player_aaaa=(.*?)</script>"), content);
+        String json = find(Pattern.compile("player_aaaa=(.*?)</script>"), content);
         JSONObject player = new JSONObject(json);
 //        String realUrl = URLDecoder.decode(new String(Base64.decode(player.getString("url").getBytes(), 0)));
         String realUrl = player.getString("url");

@@ -32,6 +32,23 @@ public class LocalFileV2 extends Spider {
     private boolean showAllFile = true;
     private final List<String> media = Arrays.asList("mp4", "mkv", "wmv", "flv", "avi", "mp3", "aac", "flac", "m4a", "ape", "ogg", "rmvb", "ts");
 
+    private String getFileExt(String name) {
+        try {
+            return name.substring(name.lastIndexOf(".") + 1).toLowerCase();
+        } catch (Exception e) {
+//            e.printStackTrace();
+            return "";
+        }
+    }
+
+    private String fileTime(long time, String fmt) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(time);
+        Date date = calendar.getTime();
+        SimpleDateFormat sdf = new SimpleDateFormat(fmt);
+        return sdf.format(date);
+    }
+
     @Override
     public void init(Context context, String extend) throws Exception {
         super.init(context, extend);
@@ -86,6 +103,7 @@ public class LocalFileV2 extends Spider {
             if (file.isDirectory()) {
                 folderList.add(file);
             } else {
+                if (!media.contains(getFileExt(file.getName()))) continue;
                 fileList.add(file);
             }
         }
@@ -135,14 +153,6 @@ public class LocalFileV2 extends Spider {
         return result.toString();
     }
 
-    private String fileTime(long time, String fmt) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(time);
-        Date date = calendar.getTime();
-        SimpleDateFormat sdf = new SimpleDateFormat(fmt);
-        return sdf.format(date);
-    }
-
     @Override
     public String detailContent(List<String> ids) throws Exception {
         String filename = ids.get(0);
@@ -182,15 +192,6 @@ public class LocalFileV2 extends Spider {
         list.put(vod);
         result.put("list", list);
         return result.toString();
-    }
-
-    private String getFileExt(String name) {
-        try {
-            return name.substring(name.lastIndexOf(".") + 1).toLowerCase();
-        } catch (Exception e) {
-//            e.printStackTrace();
-        }
-        return "";
     }
 
     @Override

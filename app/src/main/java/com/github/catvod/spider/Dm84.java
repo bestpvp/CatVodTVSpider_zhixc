@@ -43,8 +43,36 @@ public class Dm84 extends Spider {
     }
 
     private String req(String url) {
-//        return OkHttp.string(url, getHeader());
+        //return OkHttp.string(url, getHeader());
         return OkHttpUtil.string(url, getHeader());
+    }
+
+    private String find(String regexStr, String htmlStr) {
+        Pattern pattern = Pattern.compile(regexStr, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(htmlStr);
+        if (matcher.find()) return matcher.group(1).trim();
+        return "";
+    }
+
+    private JSONArray parseVodList(String url) throws Exception {
+        String html = req(url);
+        Elements elements = Jsoup.parse(html).select("[class=v_list] li");
+        JSONArray videos = new JSONArray();
+        for (Element e : elements) {
+            Element item = e.select("a").get(0);
+            String vodId = item.attr("href");
+            String name = item.attr("title").replaceAll("在线观看", "");
+            String pic = item.attr("data-bg");
+            String remark = e.select("[class=desc]").text();
+
+            JSONObject vod = new JSONObject();
+            vod.put("vod_id", vodId);
+            vod.put("vod_name", name);
+            vod.put("vod_pic", pic);
+            vod.put("vod_remarks", remark);
+            videos.put(vod);
+        }
+        return videos;
     }
 
     @Override
@@ -92,27 +120,6 @@ public class Dm84 extends Spider {
         return result.toString();
     }
 
-    private JSONArray parseVodList(String url) throws Exception {
-        String html = req(url);
-        Elements elements = Jsoup.parse(html).select("[class=v_list] li");
-        JSONArray videos = new JSONArray();
-        for (Element e : elements) {
-            Element item = e.select("a").get(0);
-            String vodId = item.attr("href");
-            String name = item.attr("title").replaceAll("在线观看", "");
-            String pic = item.attr("data-bg");
-            String remark = e.select("[class=desc]").text();
-
-            JSONObject vod = new JSONObject();
-            vod.put("vod_id", vodId);
-            vod.put("vod_name", name);
-            vod.put("vod_pic", pic);
-            vod.put("vod_remarks", remark);
-            videos.put(vod);
-        }
-        return videos;
-    }
-
     @Override
     public String detailContent(List<String> ids) throws Exception {
         String vodId = ids.get(0);
@@ -130,9 +137,9 @@ public class Dm84 extends Spider {
             area = textNodes.get(1).text();
         }
         String remark = doc.select(".v_desc .desc").text();
-        String director = getStrByRegex("导演：(.*?)</p>", html);
-        String actor = getStrByRegex("主演：(.*?)</p>", html);
-        String description = getStrByRegex("剧情：(.*?)</p>", html);
+        String director = find("导演：(.*?)</p>", html);
+        String actor = find("主演：(.*?)</p>", html);
+        String description = find("剧情：(.*?)</p>", html);
 
         Elements sourceList = doc.select(".play_list");
         Elements circuits = doc.select("[class=tab_control play_from] li");
@@ -169,13 +176,6 @@ public class Dm84 extends Spider {
         JSONArray jsonArray = new JSONArray().put(vod);
         JSONObject result = new JSONObject().put("list", jsonArray);
         return result.toString();
-    }
-
-    private String getStrByRegex(String regexStr, String htmlStr) {
-        Pattern pattern = Pattern.compile(regexStr, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(htmlStr);
-        if (matcher.find()) return matcher.group(1).trim();
-        return "";
     }
 
     @Override

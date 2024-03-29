@@ -34,7 +34,7 @@ public class PiaoHua extends Spider {
 
     private final String userAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36";
 
-    private String getWebContent(String targetUrl) throws Exception {
+    private String req(String targetUrl) throws Exception {
         Request request = new Request.Builder()
                 .addHeader("User-Agent", userAgent)
                 .get()
@@ -46,6 +46,38 @@ public class PiaoHua extends Spider {
         byte[] bytes = response.body().bytes();
         response.close();
         return new String(bytes, "gb2312");
+    }
+
+    private String find(Pattern pattern, String html) {
+        Matcher matcher = pattern.matcher(html);
+        return matcher.find() ? matcher.group(1) : "";
+    }
+
+    private static String getEpisodeName(String episodeUrl) {
+        try {
+            return episodeUrl.split("&dn=")[1];
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "第1集";
+    }
+
+    private String getDescription(Pattern pattern, String html) {
+        return find(pattern, html).replaceAll("</?[^>]+>", "");
+    }
+
+    private String getDirectorStr(Pattern pattern, String html) {
+        return find(pattern, html)
+                .replaceAll("&middot;", "·");
+    }
+
+    private String getActorStr(String html) {
+        Pattern p1 = Pattern.compile("◎演　　员　(.*?)◎");
+        Pattern p2 = Pattern.compile("◎主　　演　(.*?)◎");
+        String actor = find(p1, html).equals("") ? find(p2, html) : "";
+        return actor.replaceAll("</?[^>]+>", "")
+                .replaceAll("　　　　　", "")
+                .replaceAll("&middot;", "·");
     }
 
     @Override
@@ -72,7 +104,7 @@ public class PiaoHua extends Spider {
         // https://www.xpiaohua.com/column/xiju/list_2.html
         String cateUrl = siteUrl + "/column" + tid;
         if (!pg.equals("1")) cateUrl += "/list_" + pg + ".html";
-        String html = getWebContent(cateUrl);
+        String html = req(cateUrl);
         JSONArray videos = new JSONArray();
         Elements items = Jsoup.parse(html).select("#list dl");
         for (Element item : items) {
@@ -98,7 +130,7 @@ public class PiaoHua extends Spider {
     @Override
     public String detailContent(List<String> ids) throws Exception {
         String detailURL = ids.get(0);
-        String html = getWebContent(detailURL);
+        String html = req(detailURL);
         Document doc = Jsoup.parse(html);
         String vod_play_url = "";
         String vod_play_from = "magnet";
@@ -116,10 +148,10 @@ public class PiaoHua extends Spider {
 
         String name = doc.select("h3").text();
         String pic = doc.select("#showinfo img").attr("src");
-        String typeName = getStrByRegex(Pattern.compile("◎类　　别　(.*?)<br"), html);
-        String year = getStrByRegex(Pattern.compile("◎年　　代　(.*?)<br"), html);
-        String area = getStrByRegex(Pattern.compile("◎产　　地　(.*?)<br"), html);
-        String remark = getStrByRegex(Pattern.compile("◎上映日期　(.*?)<br"), html);
+        String typeName = find(Pattern.compile("◎类　　别　(.*?)<br"), html);
+        String year = find(Pattern.compile("◎年　　代　(.*?)<br"), html);
+        String area = find(Pattern.compile("◎产　　地　(.*?)<br"), html);
+        String remark = find(Pattern.compile("◎上映日期　(.*?)<br"), html);
         String actor = getActorStr(html);
         String director = getDirectorStr(Pattern.compile("◎导　　演　(.*?)<br"), html);
         String description = getDescription(Pattern.compile("◎简　　介(.*?)◎", Pattern.CASE_INSENSITIVE | Pattern.DOTALL), html);
@@ -147,43 +179,10 @@ public class PiaoHua extends Spider {
         return result.toString();
     }
 
-    private static String getEpisodeName(String episodeUrl) {
-        try {
-            return episodeUrl.split("&dn=")[1];
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "第1集";
-    }
-
-    private String getDescription(Pattern pattern, String html) {
-        return getStrByRegex(pattern, html).replaceAll("</?[^>]+>", "");
-    }
-
-    private String getDirectorStr(Pattern pattern, String html) {
-        return getStrByRegex(pattern, html)
-                .replaceAll("&middot;", "·");
-    }
-
-    private String getActorStr(String html) {
-        Pattern p1 = Pattern.compile("◎演　　员　(.*?)◎");
-        Pattern p2 = Pattern.compile("◎主　　演　(.*?)◎");
-        String actor = getStrByRegex(p1, html).equals("") ? getStrByRegex(p2, html) : "";
-        return actor.replaceAll("</?[^>]+>", "")
-                .replaceAll("　　　　　", "")
-                .replaceAll("&middot;", "·");
-    }
-
-    private String getStrByRegex(Pattern pattern, String html) {
-        Matcher matcher = pattern.matcher(html);
-        if (matcher.find()) return matcher.group(1);
-        return "";
-    }
-
     @Override
     public String searchContent(String key, boolean quick) throws Exception {
         String searchURL = siteUrl + "/plus/search.php?q=" + URLEncoder.encode(key, "GBK") + "&searchtype.x=0&searchtype.y=0";
-        String html = getWebContent(searchURL);
+        String html = req(searchURL);
         JSONArray videos = new JSONArray();
         Elements items = Jsoup.parse(html).select("#list dl");
         for (Element item : items) {
