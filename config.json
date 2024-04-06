@@ -1,5 +1,5 @@
 {
-  "spider": "https://gh.isteed.cc/https://raw.githubusercontent.com/zhixc/CatVodTVSpider/main/jar/custom_spider.jar;md5;0d3c737373caf5d334467d3eb94d45bf",
+  "spider": "https://gh.isteed.cc/https://raw.githubusercontent.com/zhixc/CatVodTVSpider/main/jar/custom_spider.jar;md5;6d234392eebd46fb59527ff954909b80",
 
   "lives": [
     {
@@ -22,8 +22,10 @@
   "wallpaper": "",
 
   "sites": [
-    {"key":"csp_SixV","name":"磁力 | 新6V电影网","type":3,"api":"csp_SixV","ext":"https://www.6vdy.org/","searchable":1,"playerType":1,"timeout":60},
-    {"key":"PiaoHua","name":"磁力 | 新飘花电影网","type":3,"api":"csp_PiaoHua","searchable":1,"playerType":1,"timeout":60},
+    {"key":"csp_SixV","name":"磁力 | 新6V电影网","type":3,"api":"csp_SixV","searchable":1,"playerType":1,"timeout":120},
+    {"key":"csp_DyGang","name":"磁力 | 电影港","type":3,"api":"csp_DyGang","searchable":1,"playerType":1,"timeout":120},
+    {"key":"csp_Xunlei8","name":"磁力 | 迅雷吧","type":3,"api":"csp_Xunlei8","searchable":1,"playerType":1,"timeout":120},
+    {"key":"PiaoHua","name":"磁力 | 新飘花电影网","type":3,"api":"csp_PiaoHua","searchable":1,"playerType":1,"timeout":120},
     {"key":"Douban","name":"搜索 | 豆瓣","type":3,"api":"csp_Douban","ext":"https://mirror.ghproxy.com/https://raw.githubusercontent.com/zhixc/CatVodTVSpider/main/other/json/douban.json","searchable":0},
     {"key":"本地","name":"本地文件","type":3,"api":"csp_LocalFileV2","searchable":0,"playerType":1},
     {"key":"本地2","name":"本地文件(不显示隐藏文件)","type":3,"api":"csp_LocalFileV2","ext": "showAllFile=false","searchable":0,"playerType":1},
@@ -43,14 +45,13 @@
     {"key":"MGTV","name":"影视 | MGTV","type":3,"api":"csp_MGTV","searchable":1},
     {"key":"农民","name":"影视 | 农民","type":3,"api":"csp_NongMing","searchable":1},
 
-    {"key":"drpy_磁力熊","name":"磁力 | 磁力熊[js]","type":3,"api":"https://www.agit.ai/fantaiying/dr_py/raw/branch/main/libs/drpy2.min.js","ext":"https://www.agit.ai/fantaiying/dr_py/raw/branch/main/js/磁力熊[磁].js","playerType":1,"timeout":60},
+    {"key":"drpy_磁力熊","name":"磁力 | 磁力熊[js]","type":3,"api":"https://www.agit.ai/fantaiying/dr_py/raw/branch/main/libs/drpy2.min.js","ext":"https://www.agit.ai/fantaiying/dr_py/raw/branch/main/js/磁力熊[磁].js","playerType":1,"timeout":120},
     {"key":"drpy_荐片","name":"影视 | 荐片[js]","type":3,"api":"https://www.agit.ai/fantaiying/dr_py/raw/branch/main/libs/drpy2.min.js","ext":"https://www.agit.ai/fantaiying/dr_py/raw/branch/main/js/荐片.js","playerType":1,"timeout":30},
     {"key":"drpy_我的哔哩","name":"合集 | 我的哔哩[js]","type":3,"api":"https://www.agit.ai/fantaiying/dr_py/raw/branch/main/libs/drpy2.min.js","ext":"https://www.agit.ai/fantaiying/dr_py/raw/branch/main/js/我的哔哩.js"},
     {"key":"drpy_厂长","name":"影视 | 厂长[js]","type":3,"api":"https://www.agit.ai/fantaiying/dr_py/raw/branch/main/libs/drpy2.min.js","ext":"https://www.agit.ai/fantaiying/dr_py/raw/branch/main/js/厂长资源.js"},
     {"key":"drpy_低端","name":"影视 | 低端[js]","type":3,"api":"https://www.agit.ai/fantaiying/dr_py/raw/branch/main/libs/drpy2.min.js","ext":"https://www.agit.ai/fantaiying/dr_py/raw/branch/main/js/ddys.js"},
     {"key":"drpy_两个BT","name":"影视 | 两个BT[js]","type":3,"api":"https://www.agit.ai/fantaiying/dr_py/raw/branch/main/libs/drpy2.min.js","ext":"https://www.agit.ai/fantaiying/dr_py/raw/branch/main/js/两个BT.js"},
     {"key":"drpy_怡萱动漫","name":"动漫 | 怡萱[js]","type":3,"api":"https://www.agit.ai/fantaiying/dr_py/raw/branch/main/libs/drpy2.min.js","ext":"https://www.agit.ai/fantaiying/dr_py/raw/branch/main/js/怡萱动漫.js"},
-    {"key":"drpy_子子影视","name":"影视 | 子子[js]","type":3,"api":"https://www.agit.ai/fantaiying/dr_py/raw/branch/main/libs/drpy2.min.js","ext":"https://www.agit.ai/fantaiying/dr_py/raw/branch/main/js/子子影视.js"},
 
     {"key":"索尼资源","name":"影视 | 索尼资源采集","type":1,"api":"https://suoniapi.com/api.php/provide/vod/",
       "categories": ["动作片", "喜剧片", "爱情片", "科幻片", "恐怖片", "剧情片", "战争片", "纪录片", "动画片", "国产剧", "欧美剧", "韩剧", "日剧", "港剧", "台剧", "泰剧", "海外剧", "大陆综艺", "日韩综艺", "港台综艺", "欧美综艺", "国产动漫", "日韩动漫", "欧美动漫", "港台动漫", "海外动漫"]
@@ -75,7 +76,7 @@
 
   "rules": [
     {"name": "量子广告", "hosts": ["vip.lz", "hd.lz", ".cdnlz"], "regex": ["19.52","18.666667","#EXT-X-DISCONTINUITY\\r*\\n*#EXTINF:6\\.666667,[\\s\\S]*?#EXT-X-DISCONTINUITY", "#EXTINF.*?\\s+.*?1o.*?\\.ts\\s+"]},
-    {"name": "非凡广告", "hosts": ["vip.ffzy", "hd.ffzy"], "regex": ["18","20.52", "#EXT-X-DISCONTINUITY\\r*\\n*#EXTINF:7\\.400000,[\\s\\S]*?#EXT-X-DISCONTINUITY", "#EXTINF.*?\\s+.*?1170(20|32).*?\\.ts\\s+", "#EXTINF.*?\\s+.*?116977.*?\\.ts\\s+"]},
+    {"name": "非凡广告", "hosts": ["vip.ffzy", "hd.ffzy","super.ffzy"], "regex": ["18","20.52", "#EXT-X-DISCONTINUITY\\r*\\n*#EXTINF:7\\.400000,[\\s\\S]*?#EXT-X-DISCONTINUITY", "#EXTINF.*?\\s+.*?1170(20|32).*?\\.ts\\s+", "#EXTINF.*?\\s+.*?116977.*?\\.ts\\s+"]},
     {"name": "索尼广告", "hosts": ["suonizy"], "regex": ["#EXT-X-DISCONTINUITY\\r*\\n*#EXTINF:1\\.000000,[\\s\\S]*?#EXT-X-DISCONTINUITY"]},
     {"name": "暴风广告", "hosts": ["bfzy", "bfbfvip"], "regex": ["#EXTINF.*?\\s+.*?adjump.*?\\.ts\\s+"]},
     {"name": "星星广告", "hosts": ["aws.ulivetv.net"], "regex": ["#EXT-X-DISCONTINUITY\\r*\\n*#EXTINF:8,[\\s\\S]*?#EXT-X-DISCONTINUITY"]},

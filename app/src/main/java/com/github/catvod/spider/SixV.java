@@ -1,13 +1,12 @@
 package com.github.catvod.spider;
 
-import android.content.Context;
 import android.text.TextUtils;
 
 import com.github.catvod.crawler.Spider;
 //import com.github.catvod.net.OkHttp;
 import com.github.catvod.utils.okhttp.OkHttpUtil;
 
-import okhttp3.FormBody;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -20,6 +19,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,17 +35,34 @@ import java.util.regex.Pattern;
  */
 public class SixV extends Spider {
 
-    private String siteUrl;
+    // 可用域名：
+    //   https://www.6vdy.org
+    //   https://www.66s6.cc
+    //   https://www.xb6v.com
+    private final String siteUrl = "https://www.6vdy.org";
+    private String nextSearchUrlPrefix;
+    private String nextSearchUrlSuffix;
 
     private final String userAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36";
 
     private String req(String url, Map<String, String> header) {
-//        return OkHttp.string(url, header);
+        //return OkHttp.string(url, header);
         return OkHttpUtil.string(url, header);
     }
 
-    private OkHttpClient getOkHttpClient() {
-//        return OkHttp.client();
+    private Response req(Request request) throws Exception {
+        return okClient().newCall(request).execute();
+    }
+
+    private String req(Response response) throws Exception {
+        if (!response.isSuccessful()) return "";
+        String content = response.body().string();
+        response.close();
+        return content;
+    }
+
+    private OkHttpClient okClient() {
+        //return OkHttp.client();
         return OkHttpUtil.defaultClient();
     }
 
@@ -62,37 +79,56 @@ public class SixV extends Spider {
         return header;
     }
 
+    private Map<String, String> getSearchHeader() {
+        Map<String, String> header = new HashMap<>();
+        header.put("User-Agent", userAgent);
+        return header;
+    }
+
     private String find(Pattern pattern, String html) {
-        Matcher matcher = pattern.matcher(html);
-        return matcher.find() ? matcher.group(1).trim() : "";
+        Matcher m = pattern.matcher(html);
+        return m.find() ? m.group(1).trim() : "";
     }
 
-    private String getActorOrDirector(Pattern pattern, String str) {
-        return find(pattern, str)
-                .replaceAll("<br>", "")
-                .replaceAll("&nbsp;", "")
-                .replaceAll("&amp;", "")
-                .replaceAll("middot;", "・")
-                .replaceAll("　　　　　", ",")
-                .replaceAll("　　　　 　", ",");
+    private JSONArray parseVodListFromDoc(String html) throws Exception {
+        JSONArray videos = new JSONArray();
+        Elements items = Jsoup.parse(html).select("#post_container [class=zoom]");
+        for (Element item : items) {
+            String vodId = item.attr("href");
+            String name = removeHtmlTag(item.attr("title"));
+            String pic = item.select("img").attr("src");
+            String remark = "";
+
+            JSONObject vod = new JSONObject();
+            vod.put("vod_id", vodId);
+            vod.put("vod_name", name);
+            vod.put("vod_pic", pic);
+            vod.put("vod_remarks", remark);
+            videos.put(vod);
+        }
+        return videos;
     }
 
-    private String getDescription(Pattern pattern, String str) {
-        return find(pattern, str)
-                .replaceAll("</?[^>]+>", "")  // 去掉 html 标签
-                .replaceAll("\n", "") // 去掉换行符
-                .replaceAll("　　　　", "")
-                .replaceAll("&amp;", "")
-                .replaceAll("middot;", "・")
-                .replaceAll("ldquo;", "【")
-                .replaceAll("rdquo;", "】");
+    private String getActor(String html) {
+        String actor = find(Pattern.compile("◎演　　员　(.*?)</p>"), html);
+        if ("".equals(actor)) actor = find(Pattern.compile("◎主　　演　(.*?)</p>"), html);
+        return clean(actor);
     }
 
-    @Override
-    public void init(Context context, String extend) throws Exception {
-        super.init(context, extend);
-        if (extend.endsWith("/")) extend = extend.substring(0, extend.lastIndexOf("/"));
-        siteUrl = extend;
+    private String clean(String str) {
+        return str.replaceAll("&amp;", "").replaceAll("middot;", "・").replaceAll("&nbsp;", "").replaceAll("<br>", "").replaceAll("　　　　　", " / ").replaceAll("　　　　 　", " / ");
+    }
+
+    private String getDirector(String html) {
+        return clean(find(Pattern.compile("◎导　　演　(.*?)<br>"), html));
+    }
+
+    private String getDescription(String html) {
+        return clean(find(Pattern.compile("◎简　　介(.*?)<hr", Pattern.DOTALL), html)).replaceAll("\n", "").replaceAll("　", "").replaceAll("hellip;", "").replaceAll("ldquo;", "【").replaceAll("rdquo;", "】");
+    }
+
+    private String removeHtmlTag(String str) {
+        return str.replaceAll("</?[^>]+>", "");
     }
 
     @Override
@@ -116,37 +152,26 @@ public class SixV extends Spider {
         String cateUrl = siteUrl + "/" + tid;
         if (!pg.equals("1")) cateUrl += "/index_" + pg + ".html";
         String html = req(cateUrl, getHeader());
-        Elements items = Jsoup.parse(html).select("#post_container .post_hover");
-        JSONArray videos = new JSONArray();
-        for (Element item : items) {
-            Element li = item.select("[class=zoom]").get(0);
-            String vid = li.attr("href");
-            String name = li.attr("title");
-            String pic = li.select("img").attr("src");
-            String remark = item.select("[rel=category tag]").text();
-
-            JSONObject vod = new JSONObject();
-            vod.put("vod_id", vid);
-            vod.put("vod_name", name);
-            vod.put("vod_pic", pic);
-            vod.put("vod_remarks", remark);
-            videos.put(vod);
-        }
+        JSONArray videos = parseVodListFromDoc(html);
+        int page = Integer.parseInt(pg), count = 999, limit = videos.length(), total = Integer.MAX_VALUE;
         JSONObject result = new JSONObject();
-        result.put("pagecount", 999);
+        result.put("page", page);
+        result.put("pagecount", count);
+        result.put("limit", limit);
+        result.put("total", total);
         result.put("list", videos);
         return result.toString();
     }
 
     @Override
     public String detailContent(List<String> ids) throws Exception {
-        String vid = ids.get(0);
-        String detailUrl = siteUrl + vid;
+        String vodId = ids.get(0);
+        String detailUrl = siteUrl + vodId;
         String html = req(detailUrl, getDetailHeader());
         Document doc = Jsoup.parse(html);
         Elements sourceList = doc.select("#post_content");
 
-        String vod_play_from = "magnet";
+        String vod_play_from = "磁力";
         Map<String, String> playMap = new LinkedHashMap<>();
         int i = 0;
         for (Element source : sourceList) {
@@ -154,14 +179,12 @@ public class SixV extends Spider {
             Elements aList = source.select("table a");
             List<String> vodItems = new ArrayList<>();
             for (Element a : aList) {
-                String episodeURL = a.attr("href");
+                String episodeUrl = a.attr("href");
                 String episodeName = a.text();
-                if (!episodeURL.startsWith("magnet")) continue;
-                vodItems.add(episodeName + "$" + episodeURL);
+                if (!episodeUrl.startsWith("magnet")) continue;
+                vodItems.add(episodeName + "$" + episodeUrl);
             }
-            if (vodItems.size() > 0) {
-                playMap.put(vod_play_from + i, TextUtils.join("#", vodItems));
-            }
+            if (vodItems.size() > 0) playMap.put(vod_play_from + i, TextUtils.join("#", vodItems));
         }
 
         String partHTML = doc.select(".context").html();
@@ -170,13 +193,10 @@ public class SixV extends Spider {
         String typeName = find(Pattern.compile("◎类　　别　(.*?)<br>"), partHTML);
         String year = find(Pattern.compile("◎年　　代　(.*?)<br>"), partHTML);
         String area = find(Pattern.compile("◎产　　地　(.*?)<br>"), partHTML);
-        String remark = find(Pattern.compile("◎上映日期　(.*?)<br>"), partHTML);
-        String actor = getActorOrDirector(Pattern.compile("◎演　　员　(.*?)</p>"), partHTML);
-        if (actor.equals("")) {
-            actor = getActorOrDirector(Pattern.compile("◎主　　演　(.*?)</p>"), partHTML);
-        }
-        String director = getActorOrDirector(Pattern.compile("◎导　　演　(.*?)<br>"), partHTML);
-        String description = getDescription(Pattern.compile("◎简　　介(.*?)<hr>", Pattern.CASE_INSENSITIVE | Pattern.DOTALL), partHTML);
+        String remark = "上映日期：" + find(Pattern.compile("◎上映日期　(.*?)<br>"), partHTML);
+        String actor = getActor(partHTML);
+        String director = getDirector(partHTML);
+        String description = removeHtmlTag(getDescription(partHTML));
 
         JSONObject vod = new JSONObject();
         vod.put("vod_id", ids.get(0));
@@ -193,7 +213,6 @@ public class SixV extends Spider {
             vod.put("vod_play_from", TextUtils.join("$$$", playMap.keySet()));
             vod.put("vod_play_url", TextUtils.join("$$$", playMap.values()));
         }
-
         JSONArray jsonArray = new JSONArray().put(vod);
         JSONObject result = new JSONObject().put("list", jsonArray);
         return result.toString();
@@ -201,41 +220,36 @@ public class SixV extends Spider {
 
     @Override
     public String searchContent(String key, boolean quick) throws Exception {
-        String searchUrl = siteUrl + "/e/search/index.php";
-        RequestBody formBody = new FormBody.Builder()
-                .add("show", "title")
-                .add("tempid", "1")
-                .add("tbname", "article")
-                .add("mid", "1")
-                .add("dopost", "search")
-                .add("submit", "")
-                .addEncoded("keyboard", key)
-                .build();
-        Request request = new Request.Builder()
-                .url(searchUrl)
-                .addHeader("User-Agent", userAgent)
-                .addHeader("Origin", siteUrl)
-                .addHeader("Referer", siteUrl + "/")
-                .post(formBody)
-                .build();
-        Response response = getOkHttpClient().newCall(request).execute();
-        if (response.body() == null) return "";
-        String html = response.body().string();
-        response.close(); // 关闭响应资源
-        Elements items = Jsoup.parse(html).select("#post_container [class=zoom]");
-        JSONArray videos = new JSONArray();
-        for (Element item : items) {
-            String vid = item.attr("href");
-            String name = item.attr("title").replaceAll("</?[^>]+>", "");
-            String pic = item.select("img").attr("src");
-            JSONObject vod = new JSONObject();
-            vod.put("vod_id", vid);
-            vod.put("vod_name", name);
-            vod.put("vod_pic", pic);
-            vod.put("vod_remarks", "");
-            videos.put(vod);
-        }
+        return searchContent(key, quick, "1");
+    }
 
+    @Override
+    public String searchContent(String key, boolean quick, String pg) throws Exception {
+        String searchUrl = siteUrl + "/e/search/index.php";
+        String html = "";
+        if ("1".equals(pg)) {
+            String formData = "show=title&tempid=1&tbname=article&mid=1&dopost=search&submit=&keyboard=" + URLEncoder.encode(key, "UTF-8");
+            RequestBody requestBody = RequestBody.create(MediaType.parse("application/x-www-form-urlencoded"), formData);
+            Request request = new Request.Builder()
+                    .url(searchUrl)
+                    .addHeader("User-Agent", userAgent)
+                    .addHeader("Origin", siteUrl)
+                    .addHeader("Referer", siteUrl + "/")
+                    .addHeader("Content-Type", "application/x-www-form-urlencoded")
+                    .post(requestBody)
+                    .build();
+            Response response = req(request);
+            if (!response.isSuccessful()) return "";
+            String[] split = String.valueOf(response.request().url()).split("\\?searchid=");
+            nextSearchUrlPrefix = split[0] + "index.php?page=";
+            nextSearchUrlSuffix = "&searchid=" + split[1];
+            html = req(response);
+        } else {
+            int page = Integer.parseInt(pg) - 1;
+            searchUrl = nextSearchUrlPrefix + page + nextSearchUrlSuffix;
+            html = req(searchUrl, getSearchHeader());
+        }
+        JSONArray videos = parseVodListFromDoc(html);
         JSONObject result = new JSONObject();
         result.put("list", videos);
         return result.toString();

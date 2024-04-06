@@ -17,8 +17,9 @@ public class PushAgent extends Spider {
         vod.put("vod_id", ids.get(0));
         vod.put("vod_name", url);
         vod.put("vod_pic", "https://pic.rmb.bdstatic.com/bjh/1d0b02d0f57f0a42201f92caba5107ed.jpeg");
-//        vod.put("type_name", "");
-        vod.put("vod_content", "推送的链接：" + url);
+        //vod.put("type_name", "");
+        //vod.put("vod_content", "推送的链接：" + url);
+        vod.put("vod_content", url);
         vod.put("vod_play_from", TextUtils.join("$$$", Arrays.asList("直连", "嗅探", "解析")));
         vod.put("vod_play_url", TextUtils.join("$$$", Arrays.asList("播放$" + url, "播放$" + url, "播放$" + url)));
         JSONArray list = new JSONArray().put(vod);
