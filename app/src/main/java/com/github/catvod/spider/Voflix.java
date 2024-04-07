@@ -216,9 +216,9 @@ public class Voflix extends Spider {
         Map<String, String> playMap = new LinkedHashMap<>();
         for (int i = 0; i < sourceList.size(); i++) {
             String spanText = circuits.get(i).select("span").text();
-            if (spanText.contains("境外") || spanText.contains("网盘")) continue;
+            if (spanText.contains("境外") || spanText.contains("网盘") || spanText.contains("暴风")) continue;
             String smallText = circuits.get(i).select("small").text();
-            String circuitName = spanText + "(共" + smallText + "集)";
+            String circuitName = spanText + "【共" + smallText + "集】";
             List<String> vodItems = new ArrayList<>();
             for (Element a : sourceList.get(i).select("a")) {
                 String episodeUrl = a.attr("href");

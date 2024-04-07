@@ -1,5 +1,5 @@
 {
-  "spider": "./jar/custom_spider.jar;md5;c3fd9628b9aaddd6e486a5e9be8a944e",
+  "spider": "./jar/custom_spider.jar;md5;0fab199ef7749c4c64771d7f6e6f8fc7",
 
   "lives": [
     {
@@ -33,7 +33,7 @@
     {"key":"996影院","name":"影视 | 996影院","type":3,"api":"csp_Cs1369","searchable":0},
     {"key":"星易影","name":"搜索 | 星易影","type":3,"api":"csp_XingYiYing","searchable":1},
     {"key":"Anime1","name":"动漫 | Anime1","type":3,"api":"csp_Anime1","searchable":1},
-    {"key":"Voflix","name":"影视 | Voflix","type":3,"api":"csp_Voflix","searchable":1,"ext":"https://www.voflix.me/"},
+    {"key":"Voflix","name":"影视 | Voflix","type":3,"api":"csp_Voflix","searchable":1,"ext":"https://www.voflix.vip/"},
     {"key":"Live2Vod","name":"直播 | 电视","type":3,"api":"csp_Live2Vod","searchable":0,"changeable":0,
      "ext":"南风$https://agit.ai/Yoursmile7/TVBox/raw/branch/master/live.txt#饭太硬$https://agit.ai/fantaiying/0/raw/branch/main/tvlive.txt&&&https://img1.dd.ci/file/08b8a048adf5d333c6030.png"
     },
