@@ -3,6 +3,7 @@ package com.github.catvod.spider;
 import com.github.catvod.crawler.Spider;
 //import com.github.catvod.net.OkHttp;
 import com.github.catvod.utils.okhttp.OkHttpUtil;
+
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -28,6 +29,10 @@ import java.util.regex.Pattern;
 /**
  * @author zhixc
  * 电影港
+ * 说明：主要在 DyGang.java 的基础上
+ * 针对动漫、电视剧、综艺类型的保留原来的剧集拼接方式
+ * 而电影类型的一条链接作为一个播放源，这样更适配
+ * FongMi的影视，尤其是播放失败时自动换源。
  */
 public class DyGang extends Spider {
 
@@ -106,7 +111,7 @@ public class DyGang extends Spider {
     private String getActor(String html) {
         String actor = find(Pattern.compile("◎演　　员　(.*?)</p", Pattern.DOTALL), html);
         if ("".equals(actor)) actor = find(Pattern.compile("◎主　　演　(.*?)</p", Pattern.DOTALL), html);
-        return actor.replaceAll("&middot;", "·").replaceAll("\r\n", "").replaceAll("<br />", "").replaceAll("&nbsp;", "").replaceAll("　　　　 　", " / ").replaceAll("　　　　　 ", " / ");
+        return actor.replaceAll("&middot;", "·").replaceAll("\r\n", "").replaceAll("<br />", "").replaceAll("&nbsp;", "").replaceAll("　　　　 　", " / ").replaceAll("　　　　　 ", " / ").replaceAll("　　　　　　", " / ");
     }
 
     private String getDirector(String html) {
@@ -119,6 +124,43 @@ public class DyGang extends Spider {
 
     private String removeHtmlTag(String str) {
         return str.replaceAll("</?[^>]+>", "");
+    }
+
+
+    private boolean isMovie(String vodId) {
+        return !(vodId.startsWith("/dsj") || vodId.startsWith("/dsj1") || vodId.startsWith("/yx") || vodId.startsWith("/dmq"));
+    }
+
+    private Map<String, String> parsePlayMapFromDoc(Document doc) {
+        Map<String, String> playMap = new LinkedHashMap<>();
+        List<String> magnetList = new ArrayList<>();
+        List<String> ed2kList = new ArrayList<>();
+        Elements aList = doc.select("td[bgcolor=#ffffbb] > a");
+        for (Element a : aList) {
+            String episodeUrl = a.attr("href");
+            String episodeName = a.text();
+            String episode = episodeName + "$" + episodeUrl;
+            if (episodeUrl.startsWith("magnet")) magnetList.add(episode);
+            if (episodeUrl.startsWith("ed2k")) ed2kList.add(episode);
+        }
+        if (magnetList.size() > 0) playMap.put("磁力", String.join("#", magnetList));
+        if (ed2kList.size() > 0) playMap.put("电驴", String.join("#", ed2kList));
+        return playMap;
+    }
+
+    private Map<String, String> parsePlayMapForMovieFromDoc(Document doc) {
+        Map<String, String> playMap = new LinkedHashMap<>();
+        Elements aList = doc.select("td[bgcolor=#ffffbb] > a");
+        for (int i = 0; i < aList.size(); i++) {
+            Element a = aList.get(i);
+            String episodeUrl = a.attr("href");
+            String episodeName = a.text();
+            if (episodeUrl.startsWith("magnet") || episodeUrl.startsWith("ed2k")) {
+                if (playMap.containsKey(episodeName)) episodeName += i;
+                playMap.put(episodeName, episodeUrl);
+            }
+        }
+        return playMap;
     }
 
     @Override
@@ -162,28 +204,17 @@ public class DyGang extends Spider {
 
     @Override
     public String detailContent(List<String> ids) throws Exception {
-        String link = siteUrl + ids.get(0);
+        String vodId = ids.get(0);
+        String link = siteUrl + vodId;
         String html = req(link, getHeader());
         String remark = "上映日期：" + removeHtmlTag(find(Pattern.compile("◎上映日期　(.*?)<br"), html));
         //String remark = find(Pattern.compile("◎片　　长　(.*?)<br"), html);
         //String remark = find(Pattern.compile("◎语　　言　(.*?)<br"), html);
         String actor = getActor(html);
         String director = getDirector(html);
-        String brief = removeHtmlTag(getBrief(html));
+        String brief = removeHtmlTag(getBrief(html)).replaceAll("　　　", "");
         Document doc = Jsoup.parse(html);
-        List<String> magnetList = new ArrayList<>();
-        List<String> ed2kList = new ArrayList<>();
-        Elements aList = doc.select("td[bgcolor=#ffffbb] > a");
-        for (Element a : aList) {
-            String episodeUrl = a.attr("href");
-            String episodeName = a.text();
-            String episode = episodeName + "$" + episodeUrl;
-            if (episodeUrl.startsWith("magnet")) magnetList.add(episode);
-            if (episodeUrl.startsWith("ed2k")) ed2kList.add(episode);
-        }
-        Map<String, String> playMap = new LinkedHashMap<>();
-        if (magnetList.size() > 0) playMap.put("磁力", String.join("#", magnetList));
-        if (ed2kList.size() > 0) playMap.put("电驴", String.join("#", ed2kList));
+        Map<String, String> playMap = isMovie(vodId) ? parsePlayMapForMovieFromDoc(doc) : parsePlayMapFromDoc(doc);
 
         JSONObject vod = new JSONObject();
         vod.put("vod_id", ids.get(0));

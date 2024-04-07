@@ -1,5 +1,5 @@
 {
-  "spider": "https://gh.isteed.cc/https://raw.githubusercontent.com/zhixc/CatVodTVSpider/main/jar/custom_spider.jar;md5;6d234392eebd46fb59527ff954909b80",
+  "spider": "./jar/custom_spider.jar;md5;c3fd9628b9aaddd6e486a5e9be8a944e",
 
   "lives": [
     {
@@ -24,9 +24,9 @@
   "sites": [
     {"key":"csp_SixV","name":"磁力 | 新6V电影网","type":3,"api":"csp_SixV","searchable":1,"playerType":1,"timeout":120},
     {"key":"csp_DyGang","name":"磁力 | 电影港","type":3,"api":"csp_DyGang","searchable":1,"playerType":1,"timeout":120},
-    {"key":"csp_Xunlei8","name":"磁力 | 迅雷吧","type":3,"api":"csp_Xunlei8","searchable":1,"playerType":1,"timeout":120},
+    {"key":"csp_Xunlei8","name":"磁力 | 迅雷吧","type":3,"api":"csp_Xunlei8","searchable":1,"playerType":1,"timeout":120,"changeable":0},
     {"key":"PiaoHua","name":"磁力 | 新飘花电影网","type":3,"api":"csp_PiaoHua","searchable":1,"playerType":1,"timeout":120},
-    {"key":"Douban","name":"搜索 | 豆瓣","type":3,"api":"csp_Douban","ext":"https://mirror.ghproxy.com/https://raw.githubusercontent.com/zhixc/CatVodTVSpider/main/other/json/douban.json","searchable":0},
+    {"key":"Douban","name":"搜索 | 豆瓣","type":3,"api":"csp_Douban","ext":"./other/json/douban.json","searchable":0},
     {"key":"本地","name":"本地文件","type":3,"api":"csp_LocalFileV2","searchable":0,"playerType":1},
     {"key":"本地2","name":"本地文件(不显示隐藏文件)","type":3,"api":"csp_LocalFileV2","ext": "showAllFile=false","searchable":0,"playerType":1},
     {"key":"巴士","name":"动漫 | 巴士","type":3,"api": "csp_Dm84","searchable":1},
@@ -37,7 +37,7 @@
     {"key":"Live2Vod","name":"直播 | 电视","type":3,"api":"csp_Live2Vod","searchable":0,"changeable":0,
      "ext":"南风$https://agit.ai/Yoursmile7/TVBox/raw/branch/master/live.txt#饭太硬$https://agit.ai/fantaiying/0/raw/branch/main/tvlive.txt&&&https://img1.dd.ci/file/08b8a048adf5d333c6030.png"
     },
-    {"key":"Live2Vod2","name":"直播 | 电视(远程配置版)","type":3,"api":"csp_Live2Vod","ext":"https://mirror.ghproxy.com/https://raw.githubusercontent.com/zhixc/CatVodTVSpider/main/other/json/live.json","searchable":0,"changeable":0},
+    {"key":"Live2Vod2","name":"直播 | 电视(远程配置版)","type":3,"api":"csp_Live2Vod","ext":"./other/json/live.json","searchable":0,"changeable":0},
     {"key":"Yj1211","name":"直播 | 综合","type":3,"api":"csp_Yj1211","searchable":1,"changeable":0},
     {"key":"V2_cokemv","name":"影视 | cokemv[V2]","type":3,"api":"csp_AppYsV2","searchable":1,"ext":"https://cokemv.co/xgapp.php/v2/"},
     {"key":"360","name":"影视 | 360","type":3,"api":"csp_SP360","searchable":1},

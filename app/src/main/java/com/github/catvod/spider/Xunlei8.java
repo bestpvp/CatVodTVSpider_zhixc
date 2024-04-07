@@ -74,7 +74,8 @@ public class Xunlei8 extends Spider {
         Document doc = Jsoup.parse(html);
         for (Element it : doc.select("div[class=b007 bf3b11b08] .b33c0")) {
             String vodId = it.select("a:eq(0)").attr("href");
-            String name = it.select("a:eq(0)").attr("title").split(" ")[0];
+            //String name = it.select("a:eq(0)").attr("title").split(" ")[0];
+            String name = it.select("a:eq(0)").attr("title");
             String pic = it.select("a:eq(0) img:eq(0)").attr("src");
             String remark = "";
 
@@ -159,8 +160,8 @@ public class Xunlei8 extends Spider {
         for (Element e : elements) {
             String text = e.text();
             if (text.startsWith("类型")) typeName = fixVodInfo(e);
-            if (text.startsWith("上映")) year = text.replace("上映", "");
-            if (text.startsWith("地区")) area = text.replace("地区", "");
+            if (text.startsWith("上映")) year = text.replace("上映：", "");
+            if (text.startsWith("地区")) area = text.replace("地区：", "");
             if (text.startsWith("片长")) remark = text;
             if (text.startsWith("主演")) actor = fixVodInfo(e);
             if (text.startsWith("导演")) director = fixVodInfo(e);
@@ -218,7 +219,8 @@ public class Xunlei8 extends Spider {
         Document doc = Jsoup.parse(html);
         for (Element it : doc.select(".b007")) {
             String vodId = it.select("a:eq(0)").attr("href");
-            String name = it.select("h2 > a:eq(0)").text().split(" ")[0];
+            //String name = it.select("h2 > a:eq(0)").text().split(" ")[0];
+            String name = it.select("h2 > a:eq(0)").text();
             String pic = it.select("a:eq(0) > img").attr("src");
             String remark = "";
 

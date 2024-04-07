@@ -131,6 +131,45 @@ public class SixV extends Spider {
         return str.replaceAll("</?[^>]+>", "");
     }
 
+    private boolean isMovie(String vodId) {
+        return !(vodId.startsWith("/donghuapian") || vodId.startsWith("/dianshiju") || vodId.startsWith("/ZongYi"));
+    }
+
+    private Map<String, String> parsePlayMapFromDoc(Elements sourceList) {
+        Map<String, String> playMap = new LinkedHashMap<>();
+        String vod_play_from = "磁力";
+        int i = 0;
+        for (Element source : sourceList) {
+            i++;
+            Elements aList = source.select("table a");
+            List<String> vodItems = new ArrayList<>();
+            for (Element a : aList) {
+                String episodeUrl = a.attr("href");
+                String episodeName = a.text();
+                if (!episodeUrl.startsWith("magnet")) continue;
+                vodItems.add(episodeName + "$" + episodeUrl);
+            }
+            if (vodItems.size() > 0) playMap.put(vod_play_from + i, TextUtils.join("#", vodItems));
+        }
+        return playMap;
+    }
+
+    private Map<String, String> parsePlayMapForMovieFromDoc(Elements sourceList) {
+        Map<String, String> playMap = new LinkedHashMap<>();
+        for (Element source : sourceList) {
+            Elements aList = source.select("table a");
+            for (int i = 0; i < aList.size(); i++) {
+                Element a = aList.get(i);
+                String episodeUrl = a.attr("href");
+                String episodeName = a.text();
+                if (!episodeUrl.startsWith("magnet")) continue;
+                if (playMap.containsKey(episodeName)) episodeName += i;
+                playMap.put(episodeName, episodeUrl);
+            }
+        }
+        return playMap;
+    }
+
     @Override
     public String homeContent(boolean filter) throws Exception {
         JSONArray classes = new JSONArray();
@@ -170,22 +209,7 @@ public class SixV extends Spider {
         String html = req(detailUrl, getDetailHeader());
         Document doc = Jsoup.parse(html);
         Elements sourceList = doc.select("#post_content");
-
-        String vod_play_from = "磁力";
-        Map<String, String> playMap = new LinkedHashMap<>();
-        int i = 0;
-        for (Element source : sourceList) {
-            i++;
-            Elements aList = source.select("table a");
-            List<String> vodItems = new ArrayList<>();
-            for (Element a : aList) {
-                String episodeUrl = a.attr("href");
-                String episodeName = a.text();
-                if (!episodeUrl.startsWith("magnet")) continue;
-                vodItems.add(episodeName + "$" + episodeUrl);
-            }
-            if (vodItems.size() > 0) playMap.put(vod_play_from + i, TextUtils.join("#", vodItems));
-        }
+        Map<String, String> playMap = isMovie(vodId) ? parsePlayMapForMovieFromDoc(sourceList) : parsePlayMapFromDoc(sourceList);
 
         String partHTML = doc.select(".context").html();
         String name = doc.select(".article_container > h1").text();
