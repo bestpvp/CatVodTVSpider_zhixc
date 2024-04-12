@@ -89,10 +89,12 @@ public class DyGang extends Spider {
         return m.find() ? m.group(1).trim() : "";
     }
 
-    private JSONArray parseVodListFromDoc(String html) throws Exception {
+    private JSONArray parseVodListFromDoc(String html, boolean isHotVod) throws Exception {
         JSONArray videos = new JSONArray();
         Document doc = Jsoup.parse(html);
-        for (Element it : doc.select("table[width=388]")) {
+        String itemsCssQuery = isHotVod ? "td[width=132]" : "table[width=388]";
+        Elements items = doc.select(itemsCssQuery);
+        for (Element it : items) {
             String vodId = it.select("a:eq(0)").attr("href");
             String name = it.select("a:eq(0) > img:eq(0)").attr("alt");
             String pic = it.select("a:eq(0) > img:eq(0)").attr("src");
@@ -185,13 +187,22 @@ public class DyGang extends Spider {
     }
 
     @Override
+    public String homeVideoContent() throws Exception {
+        String html = req(siteUrl, getHeader());
+        JSONArray videos = parseVodListFromDoc(html, true);
+        JSONObject result = new JSONObject();
+        result.put("list", videos);
+        return result.toString();
+    }
+
+    @Override
     public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) throws Exception {
         if ("my_dianying".equals(tid)) tid = extend.get("cateId") == null ? "ys" : extend.get("cateId");
         if ("my_dianshiju".equals(tid)) tid = extend.get("cateId") == null ? "dsj" : extend.get("cateId");
         String cateUrl = siteUrl + "/" + tid;
         if (!"1".equals(pg)) cateUrl += "/index_" + pg + ".htm";
         String html = req(cateUrl, getHeader());
-        JSONArray videos = parseVodListFromDoc(html);
+        JSONArray videos = parseVodListFromDoc(html, false);
         int page = Integer.parseInt(pg), count = 999, limit = videos.length(), total = Integer.MAX_VALUE;
         JSONObject result = new JSONObject();
         result.put("page", page);
@@ -212,17 +223,28 @@ public class DyGang extends Spider {
         //String remark = find(Pattern.compile("◎语　　言　(.*?)<br"), html);
         String actor = getActor(html);
         String director = getDirector(html);
-        String brief = removeHtmlTag(getBrief(html)).replaceAll("　　　", "");
+        String brief = removeHtmlTag(getBrief(html)).replaceAll("　　　", "").replaceAll("　　", "");
         Document doc = Jsoup.parse(html);
         Map<String, String> playMap = isMovie(vodId) ? parsePlayMapForMovieFromDoc(doc) : parsePlayMapFromDoc(doc);
+
+        String typeName = removeHtmlTag(find(Pattern.compile("◎类　　别　(.*?)<br"), html)).replaceAll(" / ", "/");
+        String year = find(Pattern.compile("◎年　　代　(.*?)<br"), html);
+        String area = removeHtmlTag(find(Pattern.compile("◎产　　地　(.*?)<br"), html));
+
+        // 由于部分信息过长，故进行一些调整，将年份、地区等信息放到 类别、备注里面
+        typeName += " 地区:" + area;
+        area = "";
+        typeName += " 年份:" + year;
+        remark += " 年份:" + year;
+        year = "";
 
         JSONObject vod = new JSONObject();
         vod.put("vod_id", ids.get(0));
         vod.put("vod_name", doc.select("div[class=title] > a:eq(0)").text()); // 影片名称
         vod.put("vod_pic", doc.select("img[width=120]:eq(0)").attr("src")); // 图片
-        vod.put("type_name", removeHtmlTag(find(Pattern.compile("◎类　　别　(.*?)<br"), html))); // 影片类型 选填
-        vod.put("vod_year", find(Pattern.compile("◎年　　代　(.*?)<br"), html)); // 年份 选填
-        vod.put("vod_area", removeHtmlTag(find(Pattern.compile("◎产　　地　(.*?)<br"), html))); // 地区 选填
+        vod.put("type_name", typeName); // 影片类型 选填
+        vod.put("vod_year", year); // 年份 选填
+        vod.put("vod_area", area); // 地区 选填
         vod.put("vod_remarks", remark); // 备注 选填
         vod.put("vod_actor", actor); // 主演 选填
         vod.put("vod_director", director); // 导演 选填
@@ -272,7 +294,7 @@ public class DyGang extends Spider {
             searchUrl = nextSearchUrlPrefix + page + nextSearchUrlSuffix;
             html = req(searchUrl, getSearchHeader());
         }
-        JSONArray videos = parseVodListFromDoc(html);
+        JSONArray videos = parseVodListFromDoc(html, false);
         JSONObject result = new JSONObject();
         result.put("list", videos);
         return result.toString();

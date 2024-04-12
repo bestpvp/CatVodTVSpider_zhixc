@@ -187,6 +187,15 @@ public class SixV extends Spider {
     }
 
     @Override
+    public String homeVideoContent() throws Exception {
+        String html = req(siteUrl, getHeader());
+        JSONArray videos = parseVodListFromDoc(html);
+        JSONObject result = new JSONObject();
+        result.put("list", videos);
+        return result.toString();
+    }
+
+    @Override
     public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) throws Exception {
         String cateUrl = siteUrl + "/" + tid;
         if (!pg.equals("1")) cateUrl += "/index_" + pg + ".html";
@@ -221,6 +230,13 @@ public class SixV extends Spider {
         String actor = getActor(partHTML);
         String director = getDirector(partHTML);
         String description = removeHtmlTag(getDescription(partHTML));
+
+        // 由于部分信息过长，故进行一些调整，将年份、地区等信息放到 类别、备注里面
+        typeName += " 地区:" + area;
+        area = "";
+        typeName += " 年份:" + year;
+        remark += " 年份:" + year;
+        year = "";
 
         JSONObject vod = new JSONObject();
         vod.put("vod_id", ids.get(0));

@@ -72,7 +72,8 @@ public class Xunlei8 extends Spider {
     private JSONArray parseVodListFromDoc(String html) throws Exception {
         JSONArray videos = new JSONArray();
         Document doc = Jsoup.parse(html);
-        for (Element it : doc.select("div[class=b007 bf3b11b08] .b33c0")) {
+        Elements items = doc.select(".b876dd567bb .b33c0");
+        for (Element it : items) {
             String vodId = it.select("a:eq(0)").attr("href");
             //String name = it.select("a:eq(0)").attr("title").split(" ")[0];
             String name = it.select("a:eq(0)").attr("title");
@@ -91,7 +92,7 @@ public class Xunlei8 extends Spider {
 
     private String fixVodInfo(Element e) {
         StringBuilder sb = new StringBuilder();
-        for (Element a : e.select("a")) sb.append(a.text()).append(" / ");
+        for (Element a : e.select("a")) sb.append(a.text()).append("/");
         return sb.toString();
     }
 
@@ -116,6 +117,15 @@ public class Xunlei8 extends Spider {
         JSONObject result = new JSONObject();
         result.put("class", classes);
         result.put("filters", filterConfig);
+        result.put("list", videos);
+        return result.toString();
+    }
+
+    @Override
+    public String homeVideoContent() throws Exception {
+        String html = req(siteUrl, getHeader());
+        JSONArray videos = parseVodListFromDoc(html);
+        JSONObject result = new JSONObject();
         result.put("list", videos);
         return result.toString();
     }
@@ -166,6 +176,11 @@ public class Xunlei8 extends Spider {
             if (text.startsWith("主演")) actor = fixVodInfo(e);
             if (text.startsWith("导演")) director = fixVodInfo(e);
         }
+        typeName += " 地区:" + area;
+        area = "";
+        typeName += " 年份:" + year;
+        remark += " 年份:" + year;
+        year = "";
 
         List<String> magnetList = new ArrayList<>();
         List<String> ed2kList = new ArrayList<>();
