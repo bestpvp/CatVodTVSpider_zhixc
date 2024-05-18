@@ -1,7 +1,7 @@
 package com.github.catvod.spider.base;
 
 import com.github.catvod.crawler.Spider;
-import com.github.catvod.utils.okhttp.OkHttpUtil;
+import com.github.catvod.net.OkHttp;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -39,8 +39,7 @@ public class BaseSpider extends Spider {
     }
 
     public static OkHttpClient getOkHttpClient() {
-        //return OkHttp.client();
-        return OkHttpUtil.defaultClient();
+        return OkHttp.client();
     }
 
     public static Response newCall(Request request) throws IOException {
