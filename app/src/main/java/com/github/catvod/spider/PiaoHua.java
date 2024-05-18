@@ -2,12 +2,8 @@ package com.github.catvod.spider;
 
 import android.text.TextUtils;
 
-import com.github.catvod.crawler.Spider;
-import com.github.catvod.utils.okhttp.OkHttpUtil;
+import com.github.catvod.spider.base.BaseSpider;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -16,11 +12,10 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.net.URLEncoder;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
@@ -28,30 +23,8 @@ import java.util.regex.Pattern;
  * @author zhixc
  * 新飘花电影网
  */
-public class PiaoHua extends Spider {
-
+public class PiaoHua extends BaseSpider {
     private final String siteUrl = "https://www.xpiaohua.com";
-
-    private final String userAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36";
-
-    private String req(String targetUrl) throws Exception {
-        Request request = new Request.Builder()
-                .addHeader("User-Agent", userAgent)
-                .get()
-                .url(targetUrl)
-                .build();
-        OkHttpClient okHttpClient = OkHttpUtil.defaultClient();
-        Response response = okHttpClient.newCall(request).execute();
-        if (response.body() == null) return "";
-        byte[] bytes = response.body().bytes();
-        response.close();
-        return new String(bytes, "gb2312");
-    }
-
-    private String find(Pattern pattern, String html) {
-        Matcher matcher = pattern.matcher(html);
-        return matcher.find() ? matcher.group(1) : "";
-    }
 
     private static String getEpisodeName(String episodeUrl) {
         try {
@@ -63,12 +36,11 @@ public class PiaoHua extends Spider {
     }
 
     private String getDescription(Pattern pattern, String html) {
-        return find(pattern, html).replaceAll("</?[^>]+>", "");
+        return removeHtmlTag(find(pattern, html));
     }
 
     private String getDirectorStr(Pattern pattern, String html) {
-        return find(pattern, html)
-                .replaceAll("&middot;", "·");
+        return find(pattern, html).replaceAll("&middot;", "·");
     }
 
     private String getActorStr(String html) {
@@ -104,7 +76,7 @@ public class PiaoHua extends Spider {
         // https://www.xpiaohua.com/column/xiju/list_2.html
         String cateUrl = siteUrl + "/column" + tid;
         if (!pg.equals("1")) cateUrl += "/list_" + pg + ".html";
-        String html = req(cateUrl);
+        String html = req(newCall(cateUrl), "GBK");
         JSONArray videos = new JSONArray();
         Elements items = Jsoup.parse(html).select("#list dl");
         for (Element item : items) {
@@ -129,8 +101,8 @@ public class PiaoHua extends Spider {
 
     @Override
     public String detailContent(List<String> ids) throws Exception {
-        String detailURL = ids.get(0);
-        String html = req(detailURL);
+        String link = ids.get(0);
+        String html = req(newCall(link), "GBK");
         Document doc = Jsoup.parse(html);
         String vod_play_url = "";
         String vod_play_from = "magnet";
@@ -181,8 +153,8 @@ public class PiaoHua extends Spider {
 
     @Override
     public String searchContent(String key, boolean quick) throws Exception {
-        String searchURL = siteUrl + "/plus/search.php?q=" + URLEncoder.encode(key, "GBK") + "&searchtype.x=0&searchtype.y=0";
-        String html = req(searchURL);
+        String link = siteUrl + "/plus/search.php?q=" + URLEncoder.encode(key, "GBK") + "&searchtype.x=0&searchtype.y=0";
+        String html = req(newCall(link), "GBK");
         JSONArray videos = new JSONArray();
         Elements items = Jsoup.parse(html).select("#list dl");
         for (Element item : items) {

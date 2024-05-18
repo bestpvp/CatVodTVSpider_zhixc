@@ -1,12 +1,9 @@
 package com.github.catvod.spider;
 
-import com.github.catvod.crawler.Spider;
 //import com.github.catvod.utils.FileUtil;
-import com.github.catvod.net.OkHttp;
-//import com.github.catvod.utils.okhttp.OkHttpUtil;
+import com.github.catvod.spider.base.BaseSpider;
 
 import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
@@ -32,28 +29,11 @@ import java.util.regex.Pattern;
  * 快看资源(搜索播放)
  * 部分地区无法正常播放
  */
-public class KuaikanZy extends Spider {
-
+public class KuaikanZy extends BaseSpider {
     private final String OCR_API = "https://api.nn.ci/ocr/b64/text";
     private String cookie;
     private final String userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36";
     private final Pattern detailPattern = Pattern.compile("/index.php/vod/detail/id/(\\d+)\\.html");
-
-    private String req(String url, Map<String, String> header) {
-        return OkHttp.string(url, header);
-//        return OkHttpUtil.string(url, header);
-    }
-
-    private OkHttpClient getOkHttpClient() {
-        return OkHttp.client();
-//        return OkHttpUtil.defaultClient();
-    }
-
-    private Map<String, String> getHeader() {
-        Map<String, String> header = new HashMap<>();
-        header.put("User-Agent", userAgent);
-        return header;
-    }
 
     private Map<String, String> getHeaderForSearch() {
         Map<String, String> header = new HashMap<>();

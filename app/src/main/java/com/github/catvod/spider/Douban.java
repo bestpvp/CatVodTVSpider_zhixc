@@ -2,9 +2,7 @@ package com.github.catvod.spider;
 
 import android.content.Context;
 
-import com.github.catvod.crawler.Spider;
-//import com.github.catvod.net.OkHttp;
-import com.github.catvod.utils.okhttp.OkHttpUtil;
+import com.github.catvod.spider.base.BaseSpider;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -15,19 +13,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Douban extends Spider {
-
+public class Douban extends BaseSpider {
     private final String siteUrl = "https://frodo.douban.com/api/v2";
     private final String apikey = "?apikey=0ac44ae016490db2204ce0a042db2916";
     private String extend;
-    private final String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36";
 
-    private String req(String url, Map<String, String> headerMap) {
-//        return OkHttp.string(url, headerMap);
-        return OkHttpUtil.string(url, headerMap);
-    }
-
-    private Map<String, String> getHeader() {
+    @Override
+    public Map<String, String> getHeader() {
         Map<String, String> header = new HashMap<>();
         header.put("Host", "frodo.douban.com");
         header.put("Connection", "Keep-Alive");
@@ -64,7 +56,7 @@ public class Douban extends Spider {
 
     private String getPic(JSONObject item) {
         try {
-            return item.getJSONObject("pic").optString("normal") + "@Referer=https://api.douban.com/@User-Agent=" + userAgent;
+            return item.getJSONObject("pic").optString("normal") + "@Referer=https://api.douban.com/@User-Agent=" + FIREFOX;
         } catch (Exception e) {
             return "";
         }
@@ -77,18 +69,6 @@ public class Douban extends Spider {
             return substring(tags.toString());
         } catch (Exception e) {
             return "";
-        }
-    }
-
-    public static String substring(String text) {
-        return substring(text, 1);
-    }
-
-    public static String substring(String text, int num) {
-        if (text != null && text.length() > num) {
-            return text.substring(0, text.length() - num);
-        } else {
-            return text;
         }
     }
 
@@ -112,7 +92,7 @@ public class Douban extends Spider {
         JSONObject jsonObject = new JSONObject(req(recommendUrl, getHeader()));
         JSONArray items = jsonObject.optJSONArray("subject_collection_items");
         JSONArray videos = parseVodListFromJSONArray(items);
-        String f = req(extend, null);
+        String f = req(extend, getHeader(extend));
         JSONObject filterConfig = new JSONObject(f);
         JSONObject result = new JSONObject();
         result.put("class", classes);
