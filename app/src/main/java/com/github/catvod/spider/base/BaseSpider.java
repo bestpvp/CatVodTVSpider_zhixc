@@ -3,6 +3,9 @@ package com.github.catvod.spider.base;
 import com.github.catvod.crawler.Spider;
 import com.github.catvod.net.OkHttp;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -91,6 +94,23 @@ public class BaseSpider extends Spider {
             return text.substring(0, text.length() - num);
         } else {
             return text;
+        }
+    }
+
+    public static JSONObject parse(String json) {
+        try {
+            return new JSONObject(json);
+        } catch (JSONException e) {
+            return new JSONObject();
+        }
+    }
+
+    public static JSONObject safeObject(String json) {
+        try {
+            JSONObject obj = parse(json);
+            return obj;
+        } catch (JSONException e) {
+            return new JSONObject();
         }
     }
 }
