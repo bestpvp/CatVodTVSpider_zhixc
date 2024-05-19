@@ -3,58 +3,32 @@ package com.github.catvod.spider;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.github.catvod.crawler.Spider;
-//import com.github.catvod.net.OkHttp;
-import com.github.catvod.utils.okhttp.OkHttpUtil;
+import com.github.catvod.spider.base.BaseSpider;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.net.URLEncoder;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * @author zhixc
  * 360
  */
-public class SP360 extends Spider {
-
-    //private final String userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:102.0) Gecko/20100101 Firefox/102.0";
-    private final String userAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36";
-    //private final String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36";
-
+public class SP360 extends BaseSpider {
     // 包含要跳过的站点字符串
     private String skipSiteStr = "";
-
-    private String req(String url, String referer) throws Exception {
-        Request request = new Request.Builder()
-                .url(url)
-                .get()
-                .addHeader("User-Agent", userAgent)
-                .addHeader("Referer", referer)
-                .build();
-        //OkHttpClient okHttpClient = OkHttp.client();
-        OkHttpClient okHttpClient = OkHttpUtil.defaultClient();
-        Response response = okHttpClient.newCall(request).execute();
-        if (response.body() == null) return "";
-        String content = response.body().string();
-        response.close();
-        return content;
-    }
 
     private String reqBusy(String url, String breakFlag) throws Exception {
         String result = "";
         for (int k = 0; k < 8; k++) {
-            result = req(url, "https://api.web.360kan.com");
+            result = req(url, getHeader("https://api.web.360kan.com"));
             if (result.contains(breakFlag)) break;
             Thread.sleep(500); // 休眠 500 毫秒，即 0.5 秒
         }
@@ -104,7 +78,7 @@ public class SP360 extends Spider {
         JSONArray videos = new JSONArray();
         String hotUrl = "https://api.web.360kan.com/v1/rank?cat=2&callback=";
         String referer = "https://www.360kan.com/rank/dianying";
-        String html = req(hotUrl, referer);
+        String html = req(hotUrl, getHeader(referer));
         JSONArray data = new JSONObject(html).optJSONArray("data");
         for (int i = 0; i < data.length(); i++) {
             JSONObject item = data.getJSONObject(i);
@@ -355,7 +329,7 @@ public class SP360 extends Spider {
         String keyword = URLEncoder.encode(key);
         String searchUrl = "https://api.so.360kan.com/index?force_v=1&kw=" + keyword + "&from=&pageno=1&v_ap=1&tab=all";
         String referer = "https://so.360kan.com/?kw=" + keyword;
-        String rs = req(searchUrl, referer);
+        String rs = req(searchUrl, getHeader(referer));
         JSONArray videos = new JSONArray();
         JSONArray rows = new JSONObject(rs)
                 .optJSONObject("data")
@@ -388,7 +362,7 @@ public class SP360 extends Spider {
     @Override
     public String playerContent(String flag, String id, List<String> vipFlags) throws Exception {
         HashMap<String, String> header = new HashMap<>();
-        header.put("User-Agent", userAgent);
+        header.put("User-Agent", CHROME);
         JSONObject result = new JSONObject()
                 .put("parse", 1) // 需要嗅探
                 .put("jx", 1) // 需要调用解析接口进行解析

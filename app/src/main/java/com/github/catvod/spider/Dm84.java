@@ -2,9 +2,7 @@ package com.github.catvod.spider;
 
 import android.text.TextUtils;
 
-import com.github.catvod.crawler.Spider;
-//import com.github.catvod.net.OkHttp;
-import com.github.catvod.utils.okhttp.OkHttpUtil;
+import com.github.catvod.spider.base.BaseSpider;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -22,40 +20,16 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author zhixc
  * 动漫84（动漫巴士）
  */
-public class Dm84 extends Spider {
-
+public class Dm84 extends BaseSpider {
     private final String siteUrl = "https://dm84.tv";
 
-    private final String userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:102.0) Gecko/20100101 Firefox/102.0";
-
-    private Map<String, String> getHeader() {
-        Map<String, String> header = new HashMap<>();
-        header.put("User-Agent", userAgent);
-        header.put("Referer", siteUrl + "/");
-        return header;
-    }
-
-    private String req(String url) {
-        //return OkHttp.string(url, getHeader());
-        return OkHttpUtil.string(url, getHeader());
-    }
-
-    private String find(String regexStr, String htmlStr) {
-        Pattern pattern = Pattern.compile(regexStr, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(htmlStr);
-        if (matcher.find()) return matcher.group(1).trim();
-        return "";
-    }
-
     private JSONArray parseVodList(String url) throws Exception {
-        String html = req(url);
+        String html = req(url, getHeader(siteUrl + "/"));
         Elements elements = Jsoup.parse(html).select("[class=v_list] li");
         JSONArray videos = new JSONArray();
         for (Element e : elements) {
@@ -124,7 +98,7 @@ public class Dm84 extends Spider {
     public String detailContent(List<String> ids) throws Exception {
         String vodId = ids.get(0);
         String detailUrl = siteUrl + vodId;
-        String html = req(detailUrl);
+        String html = req(detailUrl, getHeader(siteUrl + "/"));
         Document doc = Jsoup.parse(html);
         String name = doc.select(".v_title > a").text();
         String pic = doc.select("#v_content > .cover > img").attr("src");
@@ -197,7 +171,7 @@ public class Dm84 extends Spider {
     @Override
     public String playerContent(String flag, String id, List<String> vipFlags) throws Exception {
         String lastUrl = id;
-        String html = req(lastUrl);
+        String html = req(lastUrl, getHeader(siteUrl + "/"));
         lastUrl = Jsoup.parse(html).select("iframe").attr("src");
 
         JSONObject result = new JSONObject();

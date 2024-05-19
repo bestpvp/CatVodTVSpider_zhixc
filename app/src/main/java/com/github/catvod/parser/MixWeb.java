@@ -17,13 +17,13 @@ public class MixWeb {
     /*
     "parses": [
     {
-      "name": "聚合",
+      "name": "Web聚合",
       "type": 3,
-      "url": "Demo"
+      "url": "Web"
     },
     {
       "name": "解析",
-      "type": 1,
+      "type": 0,
       "url": "https://192.168.10.88/jx.php?url=",
       "ext": {
         "flag": [

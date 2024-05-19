@@ -21,6 +21,8 @@
 > FongMi的影视APP / TVBox 配置加速地址1: https://mirror.ghproxy.com/https://raw.githubusercontent.com/zhixc/CatVodTVSpider/main/config.json
 >
 > FongMi的影视APP / TVBox 配置加速地址2: https://github.moeyy.xyz/https://raw.githubusercontent.com/zhixc/CatVodTVSpider/main/config.json
+>
+> FongMi的影视APP / TVBox 配置加速地址3: https://ghproxy.liuzhicong.com/https://raw.githubusercontent.com/zhixc/CatVodTVSpider/main/config.json
 
 
 

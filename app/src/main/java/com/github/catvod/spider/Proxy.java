@@ -5,6 +5,7 @@ import android.util.Base64;
 import com.github.catvod.crawler.Spider;
 import com.github.catvod.crawler.SpiderDebug;
 import com.github.catvod.live.TxtSubscribe;
+import com.github.catvod.utils.m3u8.M3U8;
 import com.github.catvod.utils.okhttp.OkHttpUtil;
 import com.github.catvod.parser.MixDemo;
 import com.github.catvod.parser.MixWeb;
@@ -59,6 +60,8 @@ public class Proxy extends Spider {
                 return MixDemo.loadHtml(params.get("flag"), params.get("url"));
             } else if (what.equals("MixWeb")) {
                 return MixWeb.loadHtml(params.get("flag"), params.get("url"));
+            } else if (what.equals("m3u8")) {
+                return M3U8.proxy(params);
             }
         } catch (Throwable th) {
             th.printStackTrace();

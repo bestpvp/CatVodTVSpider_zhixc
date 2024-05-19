@@ -1,11 +1,8 @@
 package com.github.catvod.spider;
 
-import com.github.catvod.crawler.Spider;
-//import com.github.catvod.net.OkHttp;
-import com.github.catvod.utils.okhttp.OkHttpUtil;
+import com.github.catvod.spider.base.BaseSpider;
 
 import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
@@ -23,7 +20,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -34,8 +30,7 @@ import java.util.regex.Pattern;
  * 而电影类型的一条链接作为一个播放源，这样更适配
  * FongMi的影视，尤其是播放失败时自动换源。
  */
-public class DyGang extends Spider {
-
+public class DyGang extends BaseSpider {
     //  地址发布：https://www.dygang.me/
     //  可用的域名：
     //   http://www.dygangs.net
@@ -44,50 +39,6 @@ public class DyGang extends Spider {
     private final String siteUrl = "http://www.dygangs.me";
     private String nextSearchUrlPrefix;
     private String nextSearchUrlSuffix;
-
-    private final String userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36";
-
-    private Map<String, String> getHeader() {
-        Map<String, String> header = new HashMap<>();
-        header.put("User-Agent", userAgent);
-        header.put("Referer", siteUrl + "/");
-        return header;
-    }
-
-    private Map<String, String> getSearchHeader() {
-        Map<String, String> header = new HashMap<>();
-        header.put("User-Agent", userAgent);
-        return header;
-    }
-
-    private String req(String url, Map<String, String> header) throws Exception {
-        Request.Builder builder = new Request.Builder().get().url(url);
-        for (String key : header.keySet()) builder.addHeader(key, header.get(key));
-        Request request = builder.build();
-        return req(request);
-    }
-
-    private String req(Request request) throws Exception {
-        Response response = okClient().newCall(request).execute();
-        return req(response);
-    }
-
-    private String req(Response response) throws Exception {
-        if (!response.isSuccessful()) return "";
-        byte[] bytes = response.body().bytes();
-        response.close();
-        return new String(bytes, "GBK");
-    }
-
-    private OkHttpClient okClient() {
-        //return OkHttp.client();
-        return OkHttpUtil.defaultClient();
-    }
-
-    private String find(Pattern pattern, String html) {
-        Matcher m = pattern.matcher(html);
-        return m.find() ? m.group(1).trim() : "";
-    }
 
     private JSONArray parseVodListFromDoc(String html, boolean isHotVod) throws Exception {
         JSONArray videos = new JSONArray();
@@ -123,11 +74,6 @@ public class DyGang extends Spider {
     private String getBrief(String html) {
         return find(Pattern.compile("◎简　　介(.*?)<hr", Pattern.DOTALL), html).replaceAll("&middot;", "·").replaceAll("\r\n", "").replaceAll("&nbsp;", " ").replaceAll("　　　　", "");
     }
-
-    private String removeHtmlTag(String str) {
-        return str.replaceAll("</?[^>]+>", "");
-    }
-
 
     private boolean isMovie(String vodId) {
         return !(vodId.startsWith("/dsj") || vodId.startsWith("/dsj1") || vodId.startsWith("/yx") || vodId.startsWith("/dmq"));
@@ -188,7 +134,7 @@ public class DyGang extends Spider {
 
     @Override
     public String homeVideoContent() throws Exception {
-        String html = req(siteUrl, getHeader());
+        String html = req(newCall(siteUrl, getHeader(siteUrl + "/")), "GBK");
         JSONArray videos = parseVodListFromDoc(html, true);
         JSONObject result = new JSONObject();
         result.put("list", videos);
@@ -201,7 +147,7 @@ public class DyGang extends Spider {
         if ("my_dianshiju".equals(tid)) tid = extend.get("cateId") == null ? "dsj" : extend.get("cateId");
         String cateUrl = siteUrl + "/" + tid;
         if (!"1".equals(pg)) cateUrl += "/index_" + pg + ".htm";
-        String html = req(cateUrl, getHeader());
+        String html = req(newCall(cateUrl, getHeader(siteUrl + "/")), "GBK");
         JSONArray videos = parseVodListFromDoc(html, false);
         int page = Integer.parseInt(pg), count = 999, limit = videos.length(), total = Integer.MAX_VALUE;
         JSONObject result = new JSONObject();
@@ -217,7 +163,7 @@ public class DyGang extends Spider {
     public String detailContent(List<String> ids) throws Exception {
         String vodId = ids.get(0);
         String link = siteUrl + vodId;
-        String html = req(link, getHeader());
+        String html = req(newCall(link, getHeader(siteUrl + "/")), "GBK");
         String remark = "上映日期：" + removeHtmlTag(find(Pattern.compile("◎上映日期　(.*?)<br"), html));
         //String remark = find(Pattern.compile("◎片　　长　(.*?)<br"), html);
         //String remark = find(Pattern.compile("◎语　　言　(.*?)<br"), html);
@@ -283,16 +229,16 @@ public class DyGang extends Spider {
                     .header("Upgrade-Insecure-Requests", "1")
                     .header("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36")
                     .build();
-            Response response = okClient().newCall(request).execute();
+            Response response = newCall(request);
             if (!response.isSuccessful()) return "";
             String[] split = String.valueOf(response.request().url()).split("\\?searchid=");
             nextSearchUrlPrefix = split[0] + "index.php?page=";
             nextSearchUrlSuffix = "&searchid=" + split[1];
-            html = req(response);
+            html = req(response, "GBK");
         } else {
             int page = Integer.parseInt(pg) - 1;
             searchUrl = nextSearchUrlPrefix + page + nextSearchUrlSuffix;
-            html = req(searchUrl, getSearchHeader());
+            html = req(newCall(searchUrl, getHeader()), "GBK");
         }
         JSONArray videos = parseVodListFromDoc(html, false);
         JSONObject result = new JSONObject();
