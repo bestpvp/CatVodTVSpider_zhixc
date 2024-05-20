@@ -146,7 +146,7 @@ public class XingYiYing extends BaseSpider {
             parse = 0;
             Map<String, String> header = new HashMap<>();
             header.put("Accept", "*/*");
-            header.put("User-Agent", FIREFOX);
+            header.put("User-Agent", CHROME);
             headerStr = header.toString();
         }
 

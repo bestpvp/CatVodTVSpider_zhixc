@@ -56,7 +56,7 @@ public class Douban extends BaseSpider {
 
     private String getPic(JSONObject item) {
         try {
-            return item.getJSONObject("pic").optString("normal") + "@Referer=https://api.douban.com/@User-Agent=" + FIREFOX;
+            return item.getJSONObject("pic").optString("normal") + "@Referer=https://api.douban.com/@User-Agent=" + CHROME;
         } catch (Exception e) {
             return "";
         }

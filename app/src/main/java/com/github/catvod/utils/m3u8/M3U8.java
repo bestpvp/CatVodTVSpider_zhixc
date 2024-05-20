@@ -46,7 +46,7 @@ public class M3U8 {
     public static Object[] proxy(Map<String, String> params) throws Exception {
         Map<String, String> header = new HashMap<>();
         header.put("User-Agent", userAgent);
-        String m3u8Content = get(params.get("url"), header);
+        String m3u8Content = get(params.get("url"), header, params.get("siteUrl"));
         Object[] result = new Object[3];
         result[0] = 200;
         result[1] = "text/plain; charset=utf-8";
@@ -55,17 +55,18 @@ public class M3U8 {
         return result;
     }
 
-    public static String get(String url, Map<String, String> headers) {
+    public static String get(String url, Map<String, String> headers, String siteUrl) {
         try {
             if (TextUtils.isEmpty(url)) return "";
             Response response = getOkHttpClient().newCall(new Request.Builder().url(url).headers(getHeader(headers)).build()).execute();
             String result = response.body().string();
             result = result.replaceAll("\r\n", "\n");
             Matcher matcher = Pattern.compile("#EXT-X-STREAM-INF(.*)\\n?(.*)").matcher(result);
-            if (matcher.find() && matcher.groupCount() > 1) return get(UriUtil.resolve(url, matcher.group(2)), headers);
+            if (matcher.find() && matcher.groupCount() > 1) return get(UriUtil.resolve(url, matcher.group(2)), headers, siteUrl);
             StringBuilder sb = new StringBuilder();
             for (String line : result.split("\n")) sb.append(shouldResolve(line) ? resolve(url, line) : line).append("\n");
             List<String> ads = AdFilter.getRegex(Uri.parse(url));
+            if (!TextUtils.isEmpty(siteUrl)) ads.addAll(AdFilter.getRegex(siteUrl));
             String s1 = sb.toString();
             String s2 = clean(s1, ads);
             if (s1.length() != s2.length()) Notify.show("净化成功！");

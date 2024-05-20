@@ -15,13 +15,12 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class BaseSpider extends Spider {
-    public static final String FIREFOX = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:102.0) Gecko/20100101 Firefox/102.0";
     public static final String CHROME = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36";
     public static final String IPHONE = "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Mobile/15E148 Safari/604.1";
 
     public Map<String, String> getHeader() {
         Map<String, String> header = new HashMap<>();
-        header.put("User-Agent", FIREFOX);
+        header.put("User-Agent", CHROME);
         return header;
     }
 
@@ -33,7 +32,7 @@ public class BaseSpider extends Spider {
 
     public Map<String, String> getHeader(String referer) {
         Map<String, String> header = new HashMap<>();
-        header.put("User-Agent", FIREFOX);
+        header.put("User-Agent", CHROME);
         header.put("Referer", referer);
         return header;
     }

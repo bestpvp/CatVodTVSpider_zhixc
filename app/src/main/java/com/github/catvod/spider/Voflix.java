@@ -3,8 +3,9 @@ package com.github.catvod.spider;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.github.catvod.utils.m3u8.AdFilter;
+import com.github.catvod.spider.base.BaseSpider;
 
+import com.github.catvod.utils.m3u8.AdFilter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -25,7 +26,7 @@ import java.util.regex.Pattern;
  * @author zhixc
  * Vodflix
  */
-public class Voflix extends AdFilter {
+public class Voflix extends BaseSpider {
     private String siteUrl;
 
     private String clean(String str) {
@@ -64,7 +65,7 @@ public class Voflix extends AdFilter {
         String url = split[0].split("=")[1];
         if (url.endsWith("/")) siteUrl = url.substring(0, url.lastIndexOf("/"));
         else siteUrl = url;
-        super.init(context, split[1].split("=")[1]);
+        AdFilter.setRules(split[1].split("=")[1]);
     }
 
     /**
@@ -246,7 +247,7 @@ public class Voflix extends AdFilter {
             result.put("parse", 0);
             result.put("header", getHeader().toString());
             result.put("playUrl", "");
-            result.put("url", proxyM3U8(realPlayUrl));
+            result.put("url", AdFilter.proxyM3U8(realPlayUrl, null));
             return result.toString();
         }
         return "";
