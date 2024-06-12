@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 
 import com.github.catvod.spider.Voflix;
+import com.github.catvod.spider.MGTV;
 import com.github.catvod.utils.m3u8.AdFilter;
 
 import org.json.JSONArray;
@@ -29,51 +30,103 @@ public class MainActivity extends Activity {
 
     private void testDemo() {
         try {
-            Voflix voflix = new Voflix();
-            System.out.println(AdFilter.rules);
-            voflix.init(MainActivity.this, "siteUrl=https://www.voflix.vip$$$rulesUrl=https://fastly.jsdelivr.net/gh/zhixc/CatVodTVSpider@main/other/json/rules.json");
-            System.out.println(AdFilter.rules);
-            String json = voflix.homeContent(true);
-            System.out.println(json);
-            JSONObject homeContent = new JSONObject(voflix.homeVideoContent());
-            System.out.println(homeContent.toString());
-            Thread.sleep(2000);
-            HashMap<String, String> extend = new HashMap<>();
-            System.out.println(voflix.categoryContent("1", "1", false, extend));
-            if (homeContent != null) {
-                try {
-                    List<String> ids = new ArrayList<String>();
-                    JSONArray array = homeContent.getJSONArray("list");
-                    for (int i = 0; i < array.length() && i < 1; i++) {
-                        try {
-                            ids.clear();
-                            Thread.sleep(2000);
-                            ids.add(array.getJSONObject(i).getString("vod_id"));
-                            System.out.println(voflix.detailContent(ids));
-                            JSONObject detailContent = new JSONObject(voflix.detailContent(ids)).getJSONArray("list").getJSONObject(0);
-                            String[] playFlags = detailContent.getString("vod_play_from").split("\\$\\$\\$");
-                            String[] playUrls = detailContent.getString("vod_play_url").split("\\$\\$\\$");
-                            for (int j = 0; j < playFlags.length; j++) {
-                                Thread.sleep(2000);
-                                String pu = playUrls[j].split("#")[0].split("\\$")[1];
-                                System.out.println(voflix.playerContent(playFlags[j], pu, new ArrayList<>()));
-                            }
-                        } catch (Throwable th) {
-                            th.printStackTrace();
-                        }
-                    }
-                } catch (Throwable th) {
-                    th.printStackTrace();
-                }
-            }
-            Thread.sleep(2000);
-            System.out.println(voflix.searchContent("陪你一起", false));
-            Thread.sleep(3000);
-            System.out.println(voflix.searchContent("顶楼", false));
+            MGTV mgtv = new MGTV();
+            System.out.println("rules: default -> "+AdFilter.rules);
+            mgtv.init(MainActivity.this, "");
+            System.out.println("rules: init -> "+AdFilter.rules);
+            JSONObject homeContent = new JSONObject(mgtv.homeContent(true));
+            System.out.println("homeContent: "+homeContent.toString());
+            JSONArray array = homeContent.getJSONArray("list");
+            System.out.println("list: "+array);
+
+//            JSONObject homeVideoContent = new JSONObject(mgtv.homeVideoContent());
+//            System.out.println("homeVideoContent: "+homeVideoContent.toString());
+//            Thread.sleep(2000);
+//            HashMap<String, String> extend = new HashMap<>();
+//            System.out.println(voflix.categoryContent("1", "1", false, extend));
+//            if (homeContent != null) {
+//                try {
+//                    List<String> ids = new ArrayList<String>();
+//                    JSONArray array = homeContent.getJSONArray("list");
+//                    for (int i = 0; i < array.length() && i < 1; i++) {
+//                        try {
+//                            ids.clear();
+//                            Thread.sleep(2000);
+//                            ids.add(array.getJSONObject(i).getString("vod_id"));
+//                            System.out.println(voflix.detailContent(ids));
+//                            JSONObject detailContent = new JSONObject(voflix.detailContent(ids)).getJSONArray("list").getJSONObject(0);
+//                            String[] playFlags = detailContent.getString("vod_play_from").split("\\$\\$\\$");
+//                            String[] playUrls = detailContent.getString("vod_play_url").split("\\$\\$\\$");
+//                            for (int j = 0; j < playFlags.length; j++) {
+//                                Thread.sleep(2000);
+//                                String pu = playUrls[j].split("#")[0].split("\\$")[1];
+//                                System.out.println(voflix.playerContent(playFlags[j], pu, new ArrayList<>()));
+//                            }
+//                        } catch (Throwable th) {
+//                            th.printStackTrace();
+//                        }
+//                    }
+//                } catch (Throwable th) {
+//                    th.printStackTrace();
+//                }
+//            }
+//            Thread.sleep(2000);
+//            System.out.println(voflix.searchContent("陪你一起", false));
+//            Thread.sleep(3000);
+//            System.out.println(voflix.searchContent("顶楼", false));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
+
+//    private void testDemo() {
+//        try {
+//            Voflix voflix = new Voflix();
+//            System.out.println("rules: default -> "+AdFilter.rules);
+//            voflix.init(MainActivity.this, "siteUrl=https://www.voflix.vip$$$rulesUrl=https://fastly.jsdelivr.net/gh/zhixc/CatVodTVSpider@main/other/json/rules.json");
+//            System.out.println("rules: init -> "+AdFilter.rules);
+//            String json = voflix.homeContent(true);
+//            System.out.println(json);
+//            JSONObject homeContent = new JSONObject(voflix.homeVideoContent());
+//            System.out.println(homeContent.toString());
+//            Thread.sleep(2000);
+//            HashMap<String, String> extend = new HashMap<>();
+//            System.out.println(voflix.categoryContent("1", "1", false, extend));
+//            if (homeContent != null) {
+//                try {
+//                    List<String> ids = new ArrayList<String>();
+//                    JSONArray array = homeContent.getJSONArray("list");
+//                    for (int i = 0; i < array.length() && i < 1; i++) {
+//                        try {
+//                            ids.clear();
+//                            Thread.sleep(2000);
+//                            ids.add(array.getJSONObject(i).getString("vod_id"));
+//                            System.out.println(voflix.detailContent(ids));
+//                            JSONObject detailContent = new JSONObject(voflix.detailContent(ids)).getJSONArray("list").getJSONObject(0);
+//                            String[] playFlags = detailContent.getString("vod_play_from").split("\\$\\$\\$");
+//                            String[] playUrls = detailContent.getString("vod_play_url").split("\\$\\$\\$");
+//                            for (int j = 0; j < playFlags.length; j++) {
+//                                Thread.sleep(2000);
+//                                String pu = playUrls[j].split("#")[0].split("\\$")[1];
+//                                System.out.println(voflix.playerContent(playFlags[j], pu, new ArrayList<>()));
+//                            }
+//                        } catch (Throwable th) {
+//                            th.printStackTrace();
+//                        }
+//                    }
+//                } catch (Throwable th) {
+//                    th.printStackTrace();
+//                }
+//            }
+//            Thread.sleep(2000);
+//            System.out.println(voflix.searchContent("陪你一起", false));
+//            Thread.sleep(3000);
+//            System.out.println(voflix.searchContent("顶楼", false));
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 //    private void testDemo2(){
 //        XPath aidi = new XPath();
