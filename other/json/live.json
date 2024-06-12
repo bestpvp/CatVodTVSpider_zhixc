@@ -1,12 +1,17 @@
 [
   {
     "name": "范明明(分组)",
-    "url": "https://ghproxy.net/https://raw.githubusercontent.com/fanmingming/live/main/tv/m3u/ipv6.m3u&&&https://img1.dd.ci/file/08b8a048adf5d333c6030.png",
+    "url": "https://raw.githubusercontent.com/fanmingming/live/main/tv/m3u/ipv6.m3u&&&https://img1.dd.ci/file/08b8a048adf5d333c6030.png",
+    "group": 1
+  },
+  {
+    "name": "加速范明明(分组)",
+    "url": "https://ghproxy.liuzhicong.com/https://raw.githubusercontent.com/fanmingming/live/main/tv/m3u/ipv6.m3u&&&https://img1.dd.ci/file/08b8a048adf5d333c6030.png",
     "group": 1
   },
   {
     "name": "YueChan(分组)",
-    "url": "https://ghproxy.net/https://raw.githubusercontent.com/YueChan/live/main/IPTV.m3u&&&https://img1.dd.ci/file/08b8a048adf5d333c6030.png",
+    "url": "https://ghproxy.liuzhicong.com/https://raw.githubusercontent.com/YueChan/live/main/IPTV.m3u&&&https://img1.dd.ci/file/08b8a048adf5d333c6030.png",
     "group": 1
   },
   {
@@ -14,17 +19,21 @@
     "url": "http://home.jundie.top:81/Cat/tv/live.txt&&&https://img1.dd.ci/file/08b8a048adf5d333c6030.png"
   },
   {
-    "name": "kimwang",
-    "url": "https://raw.githubusercontent.com/kimwang1978/collect-tv-txt/main/merged_output.txt&&&https://img1.dd.ci/file/08b8a048adf5d333c6030.png"
+    "name": "yuanzl77",
+    "url": "https://ghproxy.liuzhicong.com/https://raw.githubusercontent.com/yuanzl77/IPTV/main/live.txt&&&https://img1.dd.ci/file/08b8a048adf5d333c6030.png"
   },
   {
-    "name": "kimwang(分线路)",
-    "url": "https://raw.githubusercontent.com/kimwang1978/collect-tv-txt/main/merged_output.txt&&&https://img1.dd.ci/file/08b8a048adf5d333c6030.png",
+    "name": "yuanzl77(分线路)",
+    "url": "https://ghproxy.liuzhicong.com/https://raw.githubusercontent.com/yuanzl77/IPTV/main/live.txt&&&https://img1.dd.ci/file/08b8a048adf5d333c6030.png",
     "circuit": 1
   },
   {
-    "name": "YanG(分组)",
-    "url": "https://cdn.jsdelivr.net/gh/YanG-1989/m3u@main/ya.m3u&&&https://img1.dd.ci/file/08b8a048adf5d333c6030.png",
-    "group": 1
+    "name": "南风",
+    "url": "https://ghproxy.liuzhicong.com/https://raw.githubusercontent.com/yoursmile66/TVBox/main/live.txt&&&https://img1.dd.ci/file/08b8a048adf5d333c6030.png"
+  },
+  {
+    "name": "南风(分线路)",
+    "url": "https://ghproxy.liuzhicong.com/https://raw.githubusercontent.com/yoursmile66/TVBox/main/live.txt&&&https://img1.dd.ci/file/08b8a048adf5d333c6030.png",
+    "circuit": 1
   }
 ]
